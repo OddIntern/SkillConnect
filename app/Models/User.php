@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable // Or your base User class
 {
@@ -18,9 +20,19 @@ class User extends Authenticatable // Or your base User class
      */
     protected $fillable = [
         'name',
+        'first_name', // New
+        'last_name',  // New
         'email',
         'password',
-        // Add any other fillable attributes your User model might have
+        'pronouns',   // New
+        'headline',   // New
+        'location',   // New
+        'about_me',   // New
+        'phone_number',// New
+        'birthday',    // New
+        'website_url', // New
+        'avatar_path', // New
+        'banner_path', // New
     ];
 
     /**
@@ -57,5 +69,17 @@ class User extends Authenticatable // Or your base User class
     public function projects() // The method name 'projects' (plural) is by convention
     {
         return $this->hasMany(Project::class);
+    }
+    /**
+     * The skills that the user has.
+     */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class);
+    }
+
+    public function experiences(): HasMany
+    {
+        return $this->hasMany(Experience::class)->orderBy('start_date', 'desc');
     }
 }
