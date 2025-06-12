@@ -49,40 +49,23 @@
         <div class="flex flex-col md:flex-row gap-6">
             <div class="w-full md:w-1/3 lg:w-1/4 space-y-6">
                 <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="gradient-bg h-20"></div>
-                    <div class="px-4 pb-6 relative">
-                        <div class="flex justify-center">
-                            <div class="rounded-full -mt-12 border-4 border-white overflow-hidden">
-                                <img class="h-24 w-24 rounded-full avatar-ring" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User avatar">
+                    {{-- The entire top section is now a single link to the user's profile --}}
+                    <a href="{{ route('profile.show', auth()->user()) }}" class="block hover:opacity-90 transition">
+                        <div class="gradient-bg h-20"></div>
+                        <div class="px-4 pb-6 relative">
+                            <div class="flex justify-center">
+                                <div class="rounded-full -mt-12 border-4 border-white overflow-hidden">
+                                    {{-- Using a dynamic placeholder avatar based on the user's name --}}
+                                    <img class="h-24 w-24 rounded-full avatar-ring" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="{{ auth()->user()->name }}'s avatar">
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <h2 class="text-lg font-semibold text-gray-900">{{ auth()->user()->name }}</h2>
+                                <p class="text-sm text-gray-600">{{ auth()->user()->headline ?? ' ' }}</p>
                             </div>
                         </div>
-                        <div class="text-center mt-4">
-                            <h2 class="text-lg font-semibold text-gray-900">{{ Auth::user()->name }}</h2>
-                            <p class="text-sm text-gray-600">Volunteer Enthusiast</p>
-                            <div class="flex justify-center mt-2">
-                                <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                                <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                                <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                                <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                                <span class="text-yellow-400"><i class="fas fa-star-half-alt"></i></span>
-                                <span class="text-gray-600 text-sm ml-1">(4.7)</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 flex justify-between text-center">
-                            <div>
-                                <p class="text-gray-700 font-semibold">24</p>
-                                <p class="text-gray-500 text-sm">Projects</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-700 font-semibold">142</p>
-                                <p class="text-gray-500 text-sm">Volunteers</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-700 font-semibold">56</p>
-                                <p class="text-gray-500 text-sm">Helped</p>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
+
                 </div>
 
                 <div class="bg-white rounded-lg shadow p-4">
@@ -151,9 +134,11 @@
                         {{-- Card Header --}}
                         <div class="flex items-start">
                             {{-- For profile picture, update this later to allow user's own profile image if added --}}
-                            <img class="h-10 w-10 rounded-full " src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name ?? $project->organization_name) }}&color=7F9CF5&background=EBF4FF" alt="Logo">
+                                <a href="{{ route('profile.show', $project->user) }}">
+                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $project->user->name }}'s avatar">
+                                </a>
                             <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-900">{{ $project->user->name }}</p>
+                                <a href="{{ route('profile.show', $project->user) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $project->user->name }}</a>
                                 
                                 {{-- Show the timestamp and status on the second line --}}
                                 <p class="text-xs text-gray-500">
