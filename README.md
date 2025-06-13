@@ -1,5 +1,6 @@
 <div align="center">
-  <h1 align="center">SkillConnect</h1>
+    <img src="https://github.com/OddIntern/SkillConnect/blob/main/public/assets/logo.jpg?raw=true" alt="SkillConnect Logo" width="350" />
+    
   <p align="center">
     Connecting passionate volunteers with meaningful opportunities to build skills and experience.
   </p>
