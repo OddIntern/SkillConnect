@@ -1,6 +1,6 @@
 <x-app-layout>
     {{-- This div now controls BOTH modals. `openModal` can be 'editProfile', 'addExperience', or null --}}
-    <div x-data="{ openModal: null }" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {{-- Success Message Display --}}
         @if (session('success'))
@@ -39,9 +39,12 @@
                                     <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition text-sm">
                                         <i class="fas fa-user-plus mr-1"></i> Follow
                                     </button>
-                                    <button class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-sm">
+                                <form action="{{ route('messages.start', $user) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-sm">
                                         <i class="fas fa-envelope mr-1"></i> Message
                                     </button>
+                                </form>
                                 </div>
                             @endif
                         @endauth
@@ -74,31 +77,62 @@
                  <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold text-gray-800">Experience</h3>
-                        {{-- This button now opens the new 'Add Experience' modal --}}
-                        <button @click.prevent="openModal = 'addExperience'" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                        @auth
+                            @if (auth()->id() === $user->id)
+                            <button @click.prevent="openModal = 'addExperience'" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
                             <i class="fas fa-plus-circle mr-1"></i> Add Experience
                         </button>
+                            @endif
+                        @endauth
+
                     </div>
                     {{-- The dynamic loop for displaying experiences (No changes here) --}}
                     <div class="space-y-5">
                         @forelse ($user->experiences as $experience)
-                            <div @if(!$loop->first) class="border-t pt-5" @endif>
-                                <h4 class="font-semibold text-gray-700">{{ $experience->title }}</h4>
-                                @if ($experience->organization)
-                                    <p class="text-sm font-medium text-gray-600">{{ $experience->organization }}</p>
-                                @endif
-                                <p class="text-sm text-gray-500">
-                                    {{ \Carbon\Carbon::parse($experience->start_date)->format('F Y') }} - 
-                                    @if ($experience->end_date)
-                                        {{ \Carbon\Carbon::parse($experience->end_date)->format('F Y') }}
-                                    @else
-                                        Present
+                            {{-- Each experience now gets its own Alpine.js component and state --}}
+                            <div x-data="{ isEditModalOpen: false }" @keydown.escape.window="isEditModalOpen = false">
+                                
+                                {{-- This is the display part of the experience --}}
+                                <div @if(!$loop->first) class="border-t pt-5" @endif>
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-semibold text-gray-700">{{ $experience->title }}</h4>
+                                            @if ($experience->organization)
+                                                <p class="text-sm font-medium text-gray-600">{{ $experience->organization }}</p>
+                                            @endif
+                                        </div>
+                                        @if(auth()->id() === $user->id)
+                                            <div class="flex space-x-3 flex-shrink-0 ml-4">
+                                                {{-- This button now just toggles the modal for THIS specific experience --}}
+                                                <button @click.prevent="isEditModalOpen = true" title="Edit" class="text-gray-400 hover:text-blue-500 text-sm">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <form action="{{ route('experience.destroy', $experience) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Delete" class="text-gray-400 hover:text-red-500 text-sm">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        {{ \Carbon\Carbon::parse($experience->start_date)->format('F Y') }} - 
+                                        {{ $experience->end_date ? \Carbon\Carbon::parse($experience->end_date)->format('F Y') : 'Present' }}
+                                    </p>
+                                    @if ($experience->description)
+                                        <p class="text-sm text-gray-600 mt-2">{{ $experience->description }}</p>
                                     @endif
-                                </p>
-                                @if ($experience->description)
-                                    <p class="text-sm text-gray-600 mt-2">{{ $experience->description }}</p>
-                                @endif
-                            </div>
+                                </div>
+
+                                <div x-show="isEditModalOpen" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
+                                    <div @click.away="isEditModalOpen = false" class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+                                        {{-- Here we include the edit form, passing the current $experience to it --}}
+                                        @include('profile.experience-edit', ['experience' => $experience])
+                                    </div>
+                                </div>
+                                </div>
                         @empty
                             <p class="text-sm text-gray-500">No experience has been added yet.</p>
                         @endforelse

@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class User extends Authenticatable // Or your base User class
 {
     use HasFactory, Notifiable; // Add any other traits your User model uses
@@ -81,5 +82,26 @@ class User extends Authenticatable // Or your base User class
     public function experiences(): HasMany
     {
         return $this->hasMany(Experience::class)->orderBy('start_date', 'desc');
+    }
+
+        /**
+     * The conversations that the user participates in.
+     */
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_user');
+    }
+
+        /**
+     * Find a one-on-one conversation with another user.
+     */
+    public function findConversationWith(User $otherUser)
+    {
+        return $this->conversations()
+            ->whereHas('participants', function ($query) use ($otherUser) {
+                $query->where('user_id', $otherUser->id);
+            })
+            ->whereHas('participants', null, '=', 2) // Ensures it's a 1-on-1 chat
+            ->first();
     }
 }

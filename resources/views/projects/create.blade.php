@@ -1,32 +1,31 @@
-<x-app-layout>
-    {{-- Slot for page-specific CSS --}}
-    <x-slot name="styles">
-        <link rel="stylesheet" href="{{ asset('css/new_post_styles.css') }}">
-    </x-slot>
+{{-- This file should ONLY contain the form's HTML, with no <x-app-layout> --}}
 
-    <div class="flex-grow container mx-auto px-4 py-8">
-        <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-lg">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Create New Volunteer Opportunity</h1>
+<div class="p-6 md:p-8 max-h-[80vh] overflow-y-auto">
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+        <h2 class="text-2xl font-bold text-gray-900">Create New Volunteer Opportunity</h2>
+        {{-- We add a close button for usability inside the loaded content --}}
+        <button @click="openModal = null" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
 
-            {{-- Display Validation Errors --}}
-            @if ($errors->any())
-                <div class="mb-4 p-4 bg-red-100 text-red-700 border border-red-400 rounded">
-                    <strong class="font-bold">Oops! Something went wrong.</strong>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+    {{-- Display Validation Errors (if any) --}}
+    @if ($errors->any())
+        <div class="mb-4 p-4 bg-red-100 text-red-700 border border-red-400 rounded">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-            <form action="{{ route('projects.store') }}" method="POST" class="space-y-6" enctype="multipart/form-data">
-                @csrf {{-- CSRF Protection --}}
-
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                    <input type="text" name="title" id="title" value="{{ old('title') }}" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., Beach Cleanup Drive">
-                </div>
+    <form action="{{ route('projects.store') }}" method="POST">
+        @csrf
+        <div class="space-y-6">
+            {{-- Title --}}
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Title <span class="text-red-500">*</span></label>
+                <input type="text" name="title" id="title" value="{{ old('title') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
 
                 <div>
@@ -51,8 +50,6 @@
                         <option value="Health" {{ old('status') == 'Health' ? 'selected' : '' }}>Health</option>
                         <option value="Programming" {{ old('status') == 'Programming' ? 'selected' : '' }}>Programming</option>
                         <option value="Urgent" {{ old('status') == 'Urgent' ? 'selected' : '' }}>Urgent</option>
-                        <option value="Open" {{ old('status') == 'Open' ? 'selected' : '' }}>Open</option>
-                        <option value="Other" {{ old('status') == 'Other' ? 'selected' : '' }}>Other</option>
                     </select>
                 </div>
 
@@ -80,16 +77,10 @@
                 </div>
 
 
-                <div class="flex justify-end pt-4">
-                    <button type="button" onclick="window.history.back();" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-3">
-                        Cancel
-                    </button>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <i class="fas fa-plus mr-2"></i>Post Opportunity
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
-
-</x-app-layout>
+        <div class="flex justify-end space-x-4 pt-6 mt-6 border-t">
+            <button type="button" @click="openModal = null" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition">Cancel</button>
+            <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">Post Opportunity</button>
+        </div>
+    </form>
+</div>

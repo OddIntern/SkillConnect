@@ -10,9 +10,9 @@
                         <a href="{{ route('discover') }}" class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-full font-medium transition duration-300">
                             Find Opportunities
                         </a>
-                        <a href="{{ route('projects.create') }}" class="bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-full font-medium transition duration-300">
+                        <button @click.prevent="openCreatePostModal()" class="bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-full font-medium transition duration-300">
                             Post a Need
-                        </a>
+                        </button>
                     </div>
                 </div>
                 <div class="md:w-1/2 relative">
@@ -71,16 +71,12 @@
                 <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="font-medium text-gray-900 mb-3">Quick Actions</h3>
                 <div class="space-y-2">
-                    <button class="w-full flex items-center justify-between px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                    <button @click.prevent="openCreatePostModal()" class="w-full flex items-center justify-between px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
                         <span><i class="fas fa-plus mr-2"></i> Create Post</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
                     <button class="w-full flex items-center justify-between px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition">
                         <span><i class="fas fa-search mr-2"></i> Find Projects</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <button class="w-full flex items-center justify-between px-4 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition">
-                        <span><i class="fas fa-calendar-alt mr-2"></i> My Schedule</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>

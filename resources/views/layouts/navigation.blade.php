@@ -16,17 +16,16 @@
                     <x-nav-link :href="route('discover')" :active="request()->routeIs('discover')">
                         {{ __('Discover') }}
                     </x-nav-link>
-                    {{-- Add Message Route Later --}}
-                     <x-nav-link href="#">
+                    <x-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.index')">
                         {{ __('Messages') }}
                     </x-nav-link>
                 </div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ml-6">
-                 <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition duration-300 mr-4" onclick="window.location.href='{{ route('projects.create') }}'">
+                <button @click.prevent="openCreatePostModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition duration-300 mr-4">
                     <i class="fas fa-plus mr-1"></i> New Post
-                </button>
+                </button>   
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
