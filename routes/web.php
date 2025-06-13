@@ -40,7 +40,7 @@ Route::delete('/experience/{experience}', [ExperienceController::class, 'destroy
 // Messages
 Route::get('/messages', [ConversationController::class, 'index'])->name('messages.index');
 // This route will handle the form submission from the "Message" button
-Route::post('/messages/start/{user}', [ConversationController::class, 'start'])->name('messages.start');
+Route::get('/messages/start/{user}', [ConversationController::class, 'start'])->name('messages.start');
 // This route will display a specific conversation and its messages
 Route::get('/messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
 Route::post('/messages/{conversation}', [ConversationController::class, 'storeMessage'])->name('messages.store');

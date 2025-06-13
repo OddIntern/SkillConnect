@@ -261,6 +261,9 @@
                                     <button class="px-4 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
                                         <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
                                     </button>
+                                    <a href="{{ route('messages.start', ['user' => $project->user->id]) }}" class="px-4 py-1 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
+                                        <i class="fas fa-comments mr-1"></i> Chat
+                                    </a>
                                 </div>
                             </div>
                         </div>
