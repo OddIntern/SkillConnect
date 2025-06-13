@@ -1,10 +1,38 @@
-<h1> AOL---SoftEng </h1> 
+<div align="center">
+  <h1 align="center">SkillConnect</h1>
+  <p align="center">
+    Connecting passionate volunteers with meaningful opportunities to build skills and experience.
+  </p>
+  
+  <p align="center">
+    <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel">
+    <img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php" alt="PHP">
+    <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+  </p>
+</div>
 
-# SkillConnect
-# Connecting volunteers through a social media platform that allows them to apply and view other projects made from other users. Intended to help users build their skills and experience.
-# Features: Sign-up/Login, Apply to a project, Browser other Projects, Message project owner.
+---
 
+### 📝 About The Project
 
+**SkillConnect** is a social media platform designed to be the bridge between volunteers and project organizers. Our main goal is to help users—from students to professionals—build their portfolios, sharpen new skills, and gain real-world experience by participating in various community projects.
+
+This platform allows users to:
+- **Discover Opportunities:** Find and browse a wide range of projects that match their interests and expertise.
+- **Build a Reputation:** Create a professional profile that showcases their experience, skills, and contributions.
+- **Collaborate:** Connect and communicate directly with project owners and fellow volunteers.
+
+### ✨ Key Features
+
+- ✅ **User Sign-up & Login:** A secure authentication system.
+- 🔍 **Browse Projects:** View a list of available projects with search and filter capabilities.
+- 📄 **Project Details:** See comprehensive information about each opportunity.
+- ➕ **Create Projects:** Users can post their own projects to find volunteers.
+- 📩 **Apply to Projects:** Apply to opportunities of interest.
+- 💬 **Direct Messaging:** Communicate with project owners (feature in development).
+- 👤 **User Profiles:** A profile page that displays a user's activity, skills, and experience.
+---
 ### ✅ Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
