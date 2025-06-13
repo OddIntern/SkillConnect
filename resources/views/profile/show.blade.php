@@ -39,7 +39,7 @@
                                     <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition text-sm">
                                         <i class="fas fa-user-plus mr-1"></i> Follow
                                     </button>
-                                <form action="{{ route('messages.start', $user) }}" method="POST">
+                                <form action="{{ route('messages.start', $user) }}" method="GET">
                                     @csrf
                                     <button type="submit" class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-sm">
                                         <i class="fas fa-envelope mr-1"></i> Message
