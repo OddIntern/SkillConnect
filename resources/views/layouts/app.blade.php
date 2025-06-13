@@ -16,7 +16,15 @@
     {{ $styles ?? '' }}
 
 </head>
-<body class="font-sans antialiased">
+<body x-data="{ 
+    openModal: null,
+    async openCreatePostModal() {
+        let response = await fetch('{{ route('projects.create') }}');
+        this.$refs.createPostModalContent.innerHTML = await response.text();
+        this.openModal = 'createProject';
+    },
+}" class="font-sans antialiased">
+
     <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
 
@@ -29,5 +37,25 @@
     
     {{-- This is the new placeholder for page-specific JS files --}}
     {{ $scripts ?? '' }}
+
+    <div 
+    x-show="openModal === 'createProject'" 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    style="display: none;"
+>
+    <div @click.away="openModal = null" class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        {{-- This div is the target for our fetched content. It has a spinner for loading. --}}
+            <div x-ref="createPostModalContent" class="flex items-center justify-center min-h-[400px]">
+                <i class="fas fa-spinner fa-spin text-4xl text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

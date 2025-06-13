@@ -58,24 +58,51 @@ class ExperienceController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Experience $experience): View
     {
-        //
+        // Security Check: Make sure the logged-in user owns this experience
+        $this->authorize('update', $experience);
+
+        // Return the partial view with the experience data
+        return view('profile.experience-edit', ['experience' => $experience]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Experience $experience): RedirectResponse
     {
-        //
+        // Security Check
+        $this->authorize('update', $experience);
+
+        // Validation
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'organization' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
+        // Update the record
+        $experience->update($validated);
+
+        // Redirect back to the profile with a success message
+        return redirect()->route('profile.show', auth()->user())->with('success', 'Experience updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Experience $experience): RedirectResponse
     {
-        //
+        // Security: Make sure the logged-in user owns this experience
+        if (auth()->user()->isNot($experience->user)) {
+            abort(403);
+        }
+
+        $experience->delete();
+
+        return redirect()->route('profile.show', auth()->user())->with('success', 'Experience deleted successfully.');
     }
 }
