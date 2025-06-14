@@ -48,11 +48,30 @@ class ConversationController extends Controller
 
     public function show(Conversation $conversation): View
     {
+        // Authorize that the current user can view this conversation
         $this->authorize('view', $conversation);
-        $conversation->load('participants', 'messages.user');
+
+        // --- Start of new logic ---
+
+        // Get all conversations for the left pane, just like in the index method
+        $user = auth()->user();
+        $conversations = $user->conversations()
+            ->with([
+                'participants' => function($query) use ($user) {
+                    $query->where('users.id', '!=', $user->id);
+                },
+                'latestMessage.user'
+            ])
+            ->get();
+
+        // Eager load the messages and their senders for the selected conversation (right pane)
+        $conversation->load('messages.user');
+
+        // --- End of new logic ---
 
         return view('messages.show', [
-            'conversation' => $conversation,
+            'conversations' => $conversations,
+            'selectedConversation' => $conversation, // Pass the selected conversation to the view
         ]);
     }
 
