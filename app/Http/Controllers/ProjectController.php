@@ -90,9 +90,12 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Project $project): View
     {
-        //
+        // Eager load the project's user and its comments with their users
+        $project->load('user', 'comments.user');
+
+        return view('projects.show', ['project' => $project]);
     }
 
     /**

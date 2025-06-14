@@ -125,7 +125,7 @@
                 <div class="space-y-4">
 
                 @forelse ($projects as $project)
-                <div class="bg-white rounded-lg shadow overflow-hidden post-card">
+                <div @click.prevent="openProjectModal({{ $project->id }})" class="bg-white rounded-lg shadow overflow-hidden post-card hover:shadow-lg transition cursor-pointer">
                     <div class="p-4">
                         {{-- Card Header --}}
                         <div class="flex items-start">
@@ -200,7 +200,7 @@
                                 <i class="far fa-heart mr-1"></i>
                                 <span>24</span> {{-- Placeholder --}}
                             </button>
-                            <a href="{{ route('comments.show', $project->id) }}" class="flex items-center text-gray-500 hover:text-green-500">
+                            <a href="{{ route('projects.show', $project) }}" class="flex items-center text-gray-500 hover:text-green-500">
                                 <i class="far fa-comment mr-1"></i>
                                 <span>{{ $project->comments_count ?? 0 }}</span>
                             </a>

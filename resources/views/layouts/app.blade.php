@@ -23,6 +23,14 @@
         this.$refs.createPostModalContent.innerHTML = await response.text();
         this.openModal = 'createProject';
     },
+
+    async openProjectModal(projectId) {
+        let url = `/projects/${projectId}`;
+        let response = await fetch(url);
+        this.$refs.projectModalContent.innerHTML = await response.text();
+        this.openModal = 'projectDetails';
+    }
+
 }" class="font-sans antialiased">
 
     <div class="min-h-screen bg-gray-100">
@@ -57,5 +65,22 @@
         </div>
     </div>
 
+    <div 
+    x-show="openModal === 'projectDetails'" 
+    x-transition 
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    style="display: none;"
+    @keydown.escape.window="openModal = null"
+>
+    <div @click.away="openModal = null" class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+        {{-- The fetched project details and comments will be injected here --}}
+        <div x-ref="projectModalContent" class="overflow-y-auto">
+            {{-- Loading Spinner --}}
+            <div class="flex items-center justify-center min-h-[400px]">
+                 <i class="fas fa-spinner fa-spin text-4xl text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

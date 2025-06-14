@@ -51,7 +51,7 @@ Route::post('/messages/{conversation}', [ConversationController::class, 'storeMe
 Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
 // Komentar dulu!
-Route::get('/projects/{project}/comments', [ProjectController::class, 'show_comment'])->name('comments.show');
+
 Route::post('/projects/{project}/comments', [CommentController::class, 'store'])->name('comments.store');
 
 // Baru detail proyek
