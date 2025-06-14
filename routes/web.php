@@ -7,11 +7,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\LandingPageController; 
-<<<<<<< HEAD
 use App\Http\Controllers\FollowController;
-=======
 use App\Http\Controllers\CommentController;
->>>>>>> f00e9c8 (Saving my local work before pulling)
 
 
 
