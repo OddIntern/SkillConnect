@@ -7,6 +7,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\LandingPageController; 
+<<<<<<< HEAD
+=======
+use App\Http\Controllers\FollowController;
+>>>>>>> 7cac32709b08b31b5f9b66278b84def9550d83af
 use App\Http\Controllers\CommentController;
 
 
@@ -50,7 +54,7 @@ Route::post('/messages/{conversation}', [ConversationController::class, 'storeMe
 Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
 // Komentar dulu!
-Route::get('/projects/{project}/comments', [ProjectController::class, 'show_comment'])->name('comments.show');
+
 Route::post('/projects/{project}/comments', [CommentController::class, 'store'])->name('comments.store');
 
 // Baru detail proyek
