@@ -6,13 +6,14 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\LandingPageController; 
 
 
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+
+Route::get('/', LandingPageController::class)->name('welcome');
 
 
 Route::get('/dashboard', DashboardController::class)->middleware(['auth', 'verified'])->name('dashboard');
