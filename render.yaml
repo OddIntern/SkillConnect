@@ -1,0 +1,33 @@
+services:
+  # The Laravel Web Service
+  - type: web
+    name: skillconnect
+    runtime: php
+    plan: free
+    buildCommand: "composer install && npm install && npm run build && php artisan migrate --force"
+    startCommand: "heroku-php-apache2 public/"
+    envVars:
+      - key: APP_URL
+        # IMPORTANT: This will be your live URL from Render after the first deploy
+        value: https://skillconnect.onrender.com 
+      - key: APP_KEY
+        # IMPORTANT: Generate a new key with `php artisan key:generate --show` and paste it here
+        generateValue: true 
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        # This links to the database service defined below
+        fromDatabase:
+          name: skillconnect-db
+          property: internalConnectionString
+
+  # The PostgreSQL Database
+  - type: psql
+    name: skillconnect-db
+    plan: free
