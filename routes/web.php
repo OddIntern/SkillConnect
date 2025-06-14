@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\LandingPageController; 
+use App\Http\Controllers\FollowController;
 
 
 
@@ -46,5 +47,8 @@ Route::get('/messages/start/{user}', [ConversationController::class, 'start'])->
 Route::get('/messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
 Route::post('/messages/{conversation}', [ConversationController::class, 'storeMessage'])->name('messages.store');
 
+
+// Followers/Following
+Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])->name('users.follow');
 
 require __DIR__.'/auth.php';

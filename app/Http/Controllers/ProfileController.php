@@ -21,12 +21,26 @@ class ProfileController extends Controller
      */
     public function show(User $user): View
     {
-        // Eager load the user's projects to prevent performance issues
-        $user->load('projects');
+        // Get the total counts first
+        $followerCount = $user->followers()->count();
+        $followingCount = $user->following()->count();
 
-        // Pass the user data to the new profile view
+        // Eager load the relationships we need for the profile page
+        $user->load([
+            'projects', 
+            // We'll just load a preview of up to 8 users for each list
+            'followers' => function ($query) {
+                $query->take(8);
+            }, 
+            'following' => function ($query) {
+                $query->take(8);
+            }
+        ]);
+
         return view('profile.show', [
             'user' => $user,
+            'followerCount' => $followerCount,
+            'followingCount' => $followingCount,
         ]);
     }
 

@@ -230,40 +230,29 @@
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="font-medium text-gray-900 mb-3">Recommended Volunteers</h3>
                 <div class="space-y-3">
-                    <div class="flex items-center">
-                        <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="User avatar">
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Emma Rodriguez</p>
-                            <p class="text-xs text-gray-500">Specializes in Education</p>
+
+                    @forelse ($recommendedUsers as $recommendedUser)
+                        <div class="flex items-center">
+                            <a href="{{ route('profile.show', $recommendedUser) }}">
+                                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($recommendedUser->name) }}" alt="{{ $recommendedUser->name }}'s avatar">
+                            </a>
+                            <div class="ml-3">
+                                <a href="{{ route('profile.show', $recommendedUser) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $recommendedUser->name }}</a>
+                                <p class="text-xs text-gray-500">{{ $recommendedUser->headline ?? 'New Member' }}</p>
+                            </div>
+                            {{-- We can wire this button up later using the same toggle logic --}}
+                            <form action="{{ route('users.follow', $recommendedUser) }}" method="POST" class="ml-auto">
+                                @csrf
+                                <button type="submit" class="text-blue-500 hover:text-blue-700 text-xs font-bold">
+                                    Follow
+                                </button>
+                            </form>
                         </div>
-                        <button class="ml-auto text-blue-500 hover:text-blue-700">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="flex items-center">
-                        <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="User avatar">
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">James Smith</p>
-                            <p class="text-xs text-gray-500">Environmental Expert</p>
-                        </div>
-                        <button class="ml-auto text-blue-500 hover:text-blue-700">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="flex items-center">
-                        <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="User avatar">
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Sophia Lee</p>
-                            <p class="text-xs text-gray-500">Community Organizer</p>
-                        </div>
-                        <button class="ml-auto text-blue-500 hover:text-blue-700">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
+                    @empty
+                        <p class="text-sm text-gray-500">No new recommendations at this time.</p>
+                    @endforelse
+
                 </div>
-                <button class="mt-3 w-full text-center text-blue-500 text-sm font-medium hover:text-blue-700">
-                    View All Recommendations
-                </button>
             </div>
 
             </div>

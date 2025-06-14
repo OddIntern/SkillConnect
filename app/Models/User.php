@@ -104,4 +104,20 @@ class User extends Authenticatable // Or your base User class
             ->whereHas('participants', null, '=', 2) // Ensures it's a 1-on-1 chat
             ->first();
     }
+
+        /**
+     * The users that this user is following.
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follower_user', 'follower_id', 'following_id');
+    }
+
+    /**
+     * The users that are following this user.
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follower_user', 'following_id', 'follower_id');
+    }
 }

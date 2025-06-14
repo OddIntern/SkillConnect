@@ -1,23 +1,19 @@
 <x-app-layout>
-    {{-- This div now controls BOTH modals. `openModal` can be 'editProfile', 'addExperience', or null --}}
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {{-- This div now controls all modals. We've added `modalTab` to handle the new modal's state --}}
+    <div x-data="{ activeModal: null, modalTab: 'followers' }" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {{-- Success Message Display --}}
         @if (session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
+            {{-- ... success message display ... --}}
         @endif
 
-        {{-- Profile Header Card (No changes here) --}}
+        {{-- Profile Header Card --}}
         <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
             <div>
-                {{-- NOTE: We'll make this dynamic after adding a 'banner_path' to the users table --}}
                 <img class="h-48 w-full object-cover" src="https://images.unsplash.com/photo-1504805572947-34fad45aed93?q=80&w=2070&auto=format&fit=crop" alt="Profile background">
             </div>
             <div class="p-6">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                    <div class="flex items-start">
+                                        <div class="flex items-start">
                         {{-- NOTE: We'll make this dynamic after adding an 'avatar_path' to the users table --}}
                         <img class="h-28 w-28 rounded-full border-4 border-white -mt-20" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="{{ $user->name }}'s avatar">
                         <div class="mt-2 ml-4">
@@ -28,7 +24,6 @@
                     </div>
                     
                     <div class="mt-4 sm:mt-0">
-                        {{-- CONDITIONAL LOGIC: Shows 'Edit' for your own profile, or 'Follow/Message' for others. --}}
                         @auth
                             @if (auth()->id() === $user->id)
                                 <button @click.prevent="openModal = 'editProfile'" class="w-full sm:w-auto block bg-gray-100 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-200 transition text-sm text-center">
@@ -36,9 +31,26 @@
                                 </button>
                             @else
                                 <div class="flex items-center space-x-2">
-                                    <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition text-sm">
-                                        <i class="fas fa-user-plus mr-1"></i> Follow
-                                    </button>
+                                        <form action="{{ route('users.follow', $user) }}" method="POST">
+                                        @csrf
+                                        @php
+                                            // Check if the authenticated user is currently following the profile user
+                                            $isFollowing = auth()->user()->following->contains($user);
+                                        @endphp
+
+                                        {{-- Dynamically change button text and style based on follow status --}}
+                                        <button type="submit" class="font-bold py-2 px-4 rounded-lg transition text-sm 
+                                            {{ $isFollowing 
+                                                ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100' 
+                                                : 'bg-blue-600 text-white hover:bg-blue-700' }}">
+
+                                            @if ($isFollowing)
+                                                <i class="fas fa-check mr-1"></i> Following
+                                            @else
+                                                <i class="fas fa-user-plus mr-1"></i> Follow
+                                            @endif
+                                        </button>
+                                    </form>
                                 <form action="{{ route('messages.start', $user) }}" method="GET">
                                     @csrf
                                     <button type="submit" class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-sm">
@@ -50,12 +62,21 @@
                         @endauth
                     </div>
                 </div>
+
+                <div class="mt-6 flex space-x-6 text-sm">
+                    <button @click.prevent="activeModal = 'followers'; modalTab = 'following'" class="text-gray-600 hover:text-black">
+                        <span class="font-bold text-gray-900">{{ $followingCount }}</span> Following
+                    </button>
+                    <button @click.prevent="activeModal = 'followers'; modalTab = 'followers'" class="text-gray-600 hover:text-black">
+                        <span class="font-bold text-gray-900">{{ $followerCount }}</span> Followers
+                    </button>
+                </div>
             </div>
         </div>
 
-        {{-- DYNAMIC 'About Me', 'Skills', and static 'Experience' --}}
+        {{-- Grid for About Me, Skills, Experience --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="md:col-span-1 space-y-6">
+                        <div class="md:col-span-1 space-y-6">
                  <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">About Me</h3>
                     <p class="text-gray-600 text-sm">
@@ -73,6 +94,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="md:col-span-2">
                  <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex justify-between items-center mb-4">
@@ -86,10 +108,8 @@
                         @endauth
 
                     </div>
-                    {{-- The dynamic loop for displaying experiences (No changes here) --}}
                     <div class="space-y-5">
                         @forelse ($user->experiences as $experience)
-                            {{-- Each experience now gets its own Alpine.js component and state --}}
                             <div x-data="{ isEditModalOpen: false }" @keydown.escape.window="isEditModalOpen = false">
                                 
                                 {{-- This is the display part of the experience --}}
@@ -169,6 +189,7 @@
         </div>
 
 
+        {{-- Edit Profile Modal (No changes here) --}}
         <div x-show="openModal === 'editProfile'" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
             <div @click.away="openModal = null" class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 mx-4">
                 {{-- Modal Header --}}
@@ -221,6 +242,8 @@
                 </form>
             </div>
         </div>
+        
+        {{-- Add Experience Modal (No changes here) --}}
         <div x-show="openModal === 'addExperience'" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
              <div @click.away="openModal = null" class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 mx-4">
                 <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -260,6 +283,54 @@
                     </div>
                 </form>
              </div>
+        </div>
+        
+
+
+        <div 
+            x-show="activeModal === 'followers'" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            style="display: none;"
+            @keydown.escape.window="activeModal = null"
+        >
+            <div @click.away="activeModal = null" class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+                {{-- Modal Header with Tabs --}}
+                <div class="flex items-center justify-between border-b p-4">
+                    <div class="flex-1"></div>
+                    <div class="flex-1 text-center">
+                        <h3 class="text-lg font-semibold" x-text="modalTab === 'followers' ? 'Followers' : 'Following'"></h3>
+                    </div>
+                    <div class="flex-1 flex justify-end">
+                         <button @click="activeModal = null" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    </div>
+                </div>
+                
+                {{-- User List --}}
+                <div class="p-4 space-y-4 overflow-y-auto">
+                    {{-- Followers List --}}
+                    <div x-show="modalTab === 'followers'">
+                        @forelse ($user->followers as $follower)
+                            @include('profile._user-list-item', ['userToList' => $follower])
+                        @empty
+                            <p class="text-center text-gray-500 py-4">No followers yet.</p>
+                        @endforelse
+                    </div>
+                    {{-- Following List --}}
+                    <div x-show="modalTab === 'following'">
+                        @forelse ($user->following as $followedUser)
+                            @include('profile._user-list-item', ['userToList' => $followedUser])
+                        @empty
+                             <p class="text-center text-gray-500 py-4">Not following anyone yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         </div>
         </div>
 </x-app-layout>
