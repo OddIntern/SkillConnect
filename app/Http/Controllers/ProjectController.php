@@ -97,4 +97,11 @@ public function store(Request $request): RedirectResponse
     {
         //
     }
+
+    public function show_comment(Project $project)
+    {
+        $project->load(['user', 'comments.user']); // agar komentar dan user-nya langsung tersedia
+        return view('comments.show', compact('project'));
+    }
+
 }

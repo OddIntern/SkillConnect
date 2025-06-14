@@ -7,7 +7,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\LandingPageController; 
+<<<<<<< HEAD
 use App\Http\Controllers\FollowController;
+=======
+use App\Http\Controllers\CommentController;
+>>>>>>> f00e9c8 (Saving my local work before pulling)
 
 
 
@@ -46,6 +50,15 @@ Route::get('/messages/start/{user}', [ConversationController::class, 'start'])->
 // This route will display a specific conversation and its messages
 Route::get('/messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
 Route::post('/messages/{conversation}', [ConversationController::class, 'storeMessage'])->name('messages.store');
+
+Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+
+// Komentar dulu!
+Route::get('/projects/{project}/comments', [ProjectController::class, 'show_comment'])->name('comments.show');
+Route::post('/projects/{project}/comments', [CommentController::class, 'store'])->name('comments.store');
+
+// Baru detail proyek
+Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
 
 // Followers/Following

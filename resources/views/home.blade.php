@@ -200,10 +200,10 @@
                                 <i class="far fa-heart mr-1"></i>
                                 <span>24</span> {{-- Placeholder --}}
                             </button>
-                            <button class="flex items-center text-gray-500 hover:text-green-500">
+                            <a href="{{ route('comments.show', $project->id) }}" class="flex items-center text-gray-500 hover:text-green-500">
                                 <i class="far fa-comment mr-1"></i>
-                                <span>8</span> {{-- Placeholder --}}
-                            </button>
+                                <span>{{ $project->comments_count ?? 0 }}</span>
+                            </a>
                         </div>
                         <button class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
                             <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
