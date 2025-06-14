@@ -121,4 +121,26 @@ class ProjectController extends Controller
     {
         //
     }
+
+    public function apply(Project $project)
+    {
+        $user = auth()->user();
+
+        // Cek apakah sudah apply
+        $alreadyApplied = $project->applications()->where('user_id', $user->id)->exists();
+        if ($alreadyApplied) {
+            return back()->with('error', 'You have already applied.');
+        }
+
+        // Buat application baru
+        $project->applications()->create([
+            'user_id' => $user->id,
+            'status' => 'pending'
+        ]);
+
+        return back()->with('success', 'You have successfully applied!');
+    }
+
+
+
 }

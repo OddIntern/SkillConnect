@@ -120,4 +120,20 @@ class User extends Authenticatable // Or your base User class
     {
         return $this->belongsToMany(User::class, 'follower_user', 'following_id', 'follower_id');
     }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
+
+    public function acceptedProjects()
+    {
+        return $this->belongsToMany(Project::class, 'applications')
+                    ->wherePivot('status', 'accepted')
+                    ->withTimestamps();
+    }
+
+
+
 }

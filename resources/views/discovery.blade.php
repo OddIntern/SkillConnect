@@ -190,9 +190,23 @@
                                     <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
                                         <i class="far fa-heart mr-1"></i> Save
                                     </button>
-                                    <button class="px-4 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
-                                        <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
-                                    </button>
+                                    @php
+                                        $hasApplied = $project->applications->contains('user_id', auth()->id());
+                                    @endphp
+
+                                    @if($hasApplied)
+                                        <button class="px-4 py-1 bg-gray-400 text-white rounded-md text-sm font-medium cursor-not-allowed" disabled>
+                                            <i class="fas fa-check mr-1"></i> Applied
+                                        </button>
+                                    @else
+                                        <form action="{{ route('projects.apply', $project->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-4 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                                                <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
+                                            </button>
+                                        </form>
+                                    @endif
+
                                     <a href="{{ route('messages.start', ['user' => $project->user->id]) }}" class="px-4 py-1 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
                                         <i class="fas fa-comments mr-1"></i> Chat
                                     </a>

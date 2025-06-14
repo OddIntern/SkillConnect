@@ -168,6 +168,21 @@
         {{-- DYNAMIC User's Activity / Projects Feed --}}
         <div>
             <h3 class="text-xl font-semibold text-gray-800 mb-4">Activity</h3>
+                {{-- Accepted Projects --}}
+                @if ($acceptedProjects->count())
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-green-700 mb-2">Accepted Projects</h4>
+                        <div class="space-y-4">
+                            @foreach ($acceptedProjects as $project)
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <h5 class="text-md font-bold text-green-800">{{ $project->title }}</h5>
+                                    <p class="text-sm text-gray-700 mt-1">{{ Str::limit($project->description, 100) }}</p>
+                                    <p class="text-xs text-gray-500 mt-2">You were accepted {{ $project->pivot->created_at->diffForHumans() }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             <div class="space-y-6">
                 @forelse ($user->projects as $project)
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -180,6 +195,38 @@
                                     </p>
                                     <h4 class="font-bold text-lg text-gray-800 hover:text-blue-600 cursor-pointer mt-1">{{ $project->title }}</h4>
                                     <p class="text-sm text-gray-500 mt-1">{{ Str::limit($project->description, 100) }}</p>
+
+                                    {{-- 👇 Tambahan: Menampilkan pelamar --}}
+                                    @if ($project->applications->count())
+                                        <div class="mt-4">
+                                            <h5 class="text-sm font-semibold text-gray-700 mb-2">Applicants:</h5>
+                                            @foreach ($project->applications as $application)
+                                                <div class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded mb-2">
+                                                    <div>
+                                                        <span class="font-medium text-blue-700">{{ $application->user->name }}</span>
+                                                        <span class="text-sm text-gray-500">applied {{ $application->created_at->diffForHumans() }}</span>
+                                                        <span class="ml-2 text-xs px-2 py-0.5 rounded-full 
+                                                            @if($application->status == 'pending') bg-yellow-100 text-yellow-800 
+                                                            @elseif($application->status == 'accepted') bg-green-100 text-green-800 
+                                                            @elseif($application->status == 'declined') bg-red-100 text-red-800 
+                                                            @endif">
+                                                            {{ ucfirst($application->status) }}
+                                                        </span>
+                                                    </div>
+
+                                                    {{-- Tombol accept/decline hanya untuk pemilik project --}}
+                                                    @if (auth()->id() === $user->id && $application->status === 'pending')
+                                                        <form action="{{ route('applications.update', $application->id) }}" method="POST" class="flex gap-2">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button name="status" value="accepted" class="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">Accept</button>
+                                                            <button name="status" value="declined" class="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">Decline</button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

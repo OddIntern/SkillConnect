@@ -220,7 +220,7 @@
 
                     <div class="mt-6" >
                         {{ $projects->links() }}
-                     </div>
+                    </div>
                 </div>
             </div>
 

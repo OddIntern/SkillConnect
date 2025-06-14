@@ -87,4 +87,10 @@ class Project extends Model
             $query->latest();
         });
     }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
 }

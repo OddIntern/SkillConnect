@@ -24,9 +24,11 @@ class ProfileController extends Controller
         // Get the total counts first
         $followerCount = $user->followers()->count();
         $followingCount = $user->following()->count();
+        
 
         // Eager load the relationships we need for the profile page
         $user->load([
+            'projects.applications.user',
             'projects', 
             // We'll just load a preview of up to 8 users for each list
             'followers' => function ($query) {
@@ -37,10 +39,18 @@ class ProfileController extends Controller
             }
         ]);
 
+        $acceptedProjects = $user->applications()
+            ->where('status', 'accepted')
+            ->with('project')
+            ->get()
+            ->pluck('project')
+            ->filter();
+
         return view('profile.show', [
             'user' => $user,
             'followerCount' => $followerCount,
             'followingCount' => $followingCount,
+            'acceptedProjects' => $user->acceptedProjects,
         ]);
     }
 
@@ -131,4 +141,7 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+
+
 }
