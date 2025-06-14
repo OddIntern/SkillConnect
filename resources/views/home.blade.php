@@ -75,10 +75,10 @@
                         <span><i class="fas fa-plus mr-2"></i> Create Post</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
-                    <button class="w-full flex items-center justify-between px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition">
+                    <a href="{{ route('discover') }}" class="w-full flex items-center justify-between px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition">
                         <span><i class="fas fa-search mr-2"></i> Find Projects</span>
                         <i class="fas fa-chevron-right"></i>
-                    </button>
+                    </a>
                 </div>
             </div>
                         <!-- Upcoming Events -->
@@ -225,51 +225,6 @@
             </div>
 
             <div class="hidden lg:block lg:w-1/4 space-y-6">
-            <!-- Trending Projects -->
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="font-medium text-gray-900 mb-3">Trending Projects</h3>
-                <div class="space-y-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 h-12 w-12 rounded-lg overflow-hidden">
-                            <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1526779259212-939e64788e3c?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Project image">
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Urban Garden Initiative</p>
-                            <p class="text-xs text-gray-500">45 volunteers this week</p>
-                            <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-green-500 h-1.5 rounded-full" style="width: 85%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 h-12 w-12 rounded-lg overflow-hidden">
-                            <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Project image">
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Coding for Kids</p>
-                            <p class="text-xs text-gray-500">32 volunteers this week</p>
-                            <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-blue-500 h-1.5 rounded-full" style="width: 75%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 h-12 w-12 rounded-lg overflow-hidden">
-                            <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1559715541-5daf8a0298d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Project image">
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Homeless Shelter Support</p>
-                            <p class="text-xs text-gray-500">28 volunteers this week</p>
-                            <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 65%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button class="mt-3 w-full text-center text-blue-500 text-sm font-medium hover:text-blue-700">
-                    See All Trending
-                </button>
-            </div>
 
             <!-- Recommended Volunteers -->
             <div class="bg-white rounded-lg shadow p-4">
@@ -311,94 +266,6 @@
                 </button>
             </div>
 
-            <!-- Volunteer Stats -->
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="font-medium text-gray-900 mb-3">Community Impact</h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">This Month</span>
-                            <span class="font-medium">1,245 hours</span>
-                        </div>
-                        <!-- <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
-                        </div> -->
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">This Year</span>
-                            <span class="font-medium">12,893 hours</span>
-                        </div>
-                        <!-- <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
-                        </div> -->
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">Total Volunteers</span>
-                            <span class="font-medium">8,742</span>
-                        </div>
-                        <!-- <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-purple-500 h-2 rounded-full" style="width: 85%"></div>
-                        </div> -->
-                    </div>
-                </div>
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg text-center">
-                    <p class="text-sm text-blue-700">You've contributed <span class="font-bold">42 hours</span> this month!</p>
-                </div>
-            </div>
-
-            <!-- Volunteer Resources -->
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="font-medium text-gray-900 mb-3">Volunteer Resources</h3>
-                <div class="space-y-3">
-                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
-                        <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                            <i class="fas fa-book text-blue-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Volunteer Handbook</p>
-                            <p class="text-xs text-gray-500">Guide to getting started</p>
-                        </div>
-                    </a>
-                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
-                        <div class="bg-green-100 p-2 rounded-lg mr-3">
-                            <i class="fas fa-video text-green-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Training Videos</p>
-                            <p class="text-xs text-gray-500">Learn best practices</p>
-                        </div>
-                    </a>
-                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition">
-                        <div class="bg-purple-100 p-2 rounded-lg mr-3">
-                            <i class="fas fa-file-alt text-purple-500"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Safety Guidelines</p>
-                            <p class="text-xs text-gray-500">Stay safe while helping</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Volunteer of the Month -->
-            <div class="bg-white rounded-lg shadow p-4 text-center">
-                <h3 class="font-medium text-gray-900 mb-3">Volunteer of the Month</h3>
-                <img src="Assets\karsten-winegeart-ZAiuJXbF7dA-unsplash.jpg" alt="Volunteer of the month" class="w-20 h-20 rounded-full mx-auto mb-3">
-                <h4 class="font-medium text-gray-900">Karsten Winegeart</h4>
-                <p class="text-sm text-gray-600 mb-2">Dedicated 120 hours this month</p>
-                <div class="flex justify-center mb-3">
-                    <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                    <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                    <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                    <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                    <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                </div>
-                <button class="text-blue-500 text-sm font-medium hover:text-blue-700">
-                    Read his journey
-                </button>
-            </div>
             </div>
         </div>
     </div>
