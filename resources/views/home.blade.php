@@ -83,43 +83,80 @@
             </div>
                         <!-- Upcoming Events -->
             <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="font-medium text-gray-900 mb-3">Upcoming Events</h3>
+                <h3 class="font-medium text-gray-900 mb-3">Your Active Projects</h3>
                 <div class="space-y-3">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 bg-blue-100 rounded-lg p-2">
-                            <i class="fas fa-calendar-day text-blue-500"></i>
+                    @forelse ($upcomingEvents as $event)
+                         <div class="flex items-start py-4 @if(!$loop->last) border-b border-gray-200 @endif">
+                            @php
+                                $icon = 'fa-calendar-day';
+                                $bgColor = 'bg-gray-100';
+                                $iconColor = 'text-gray-500';
+
+                                switch ($event->status) {
+                                    case 'Urgent':
+                                        $icon = 'fa-circle-exclamation';
+                                        $bgColor = 'bg-red-100';
+                                        $iconColor = 'text-red-500';
+                                        break;
+                                    case 'Environmental':
+                                        $icon = 'fa-tree';
+                                        $bgColor = 'bg-green-100';
+                                        $iconColor = 'text-green-500';
+                                        break;
+                                    case 'Education':
+                                        $icon = 'fa-graduation-cap';
+                                        $bgColor = 'bg-blue-100';
+                                        $iconColor = 'text-blue-500';
+                                        break;
+                                    case 'Community':
+                                        $icon = 'fa-users';
+                                        $bgColor = 'bg-yellow-100';
+                                        $iconColor = 'text-yellow-500';
+                                        break;
+                                    case 'Animals':
+                                        $icon = 'fa-paw';
+                                        $bgColor = 'bg-orange-100';
+                                        $iconColor = 'text-orange-500';
+                                        break;
+                                    case 'Health':
+                                        $icon = 'fa-heart-pulse';
+                                        $bgColor = 'bg-rose-100';
+                                        $iconColor = 'text-rose-500';
+                                        break;
+                                    case 'Programming':
+                                        $icon = 'fa-code';
+                                        $bgColor = 'bg-indigo-100';
+                                        $iconColor = 'text-indigo-500';
+                                        break;
+                                }
+                            @endphp
+
+                            <div class="flex-shrink-0 {{ $bgColor }} rounded-lg p-2 w-8 h-8 flex items-center justify-center">
+                                <i class="fas {{ $icon }} {{ $iconColor }}"></i>
+                            </div>
+
+                            <div class="ml-3">
+                                <p class="text-sm font-medium {{ $event->status === 'Urgent' ? 'text-red-600' : 'text-gray-900' }}">
+                                    {{ $event->title }}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    {{ $event->schedule_details }}
+                                </p>
+                            </div>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Beach Cleanup</p>
-                            
-                            <p class="text-xs text-gray-500">Tomorrow, 9:00 AM</p>
+                    @empty
+                        <div class="text-center py-3">
+                            <p class="text-sm text-gray-500">You have no upcoming events.</p>
+                            <a href="{{ route('discover') }}" class="text-xs text-blue-600 hover:underline font-medium">Find a project to join!</a>
                         </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 bg-green-100 rounded-lg p-2">
-                            <i class="fas fa-utensils text-green-500"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Food Bank Help</p>
-                            <p class="text-xs text-gray-500">Sat, 1:00 PM</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 bg-purple-100 rounded-lg p-2">
-                            <i class="fas fa-tree text-purple-500"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">Tree Planting</p>
-                            <p class="text-xs text-gray-500">Next Wed, 10:00 AM</p>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
-                <button class="mt-3 w-full text-center text-blue-500 text-sm font-medium hover:text-blue-700">
-                    View All Events
-                </button>
             </div>
 
-            </div>
+        </div>
+
+
+            
 
             <div class="w-full md:w-2/3 lg:w-1/2 space-y-6">
                 <div class="space-y-4">
@@ -205,9 +242,22 @@
                                 <span>{{ $project->comments_count ?? 0 }}</span>
                             </a>
                         </div>
-                        <button class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
-                            <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
-                        </button>
+                             @php
+                               $hasApplied = $project->applications->contains('user_id', auth()->id());
+                            @endphp
+
+                                    @if($hasApplied)
+                                        <button class="px-4 py-1 bg-gray-400 text-white rounded-md text-sm font-medium cursor-not-allowed" disabled>
+                                            <i class="fas fa-check mr-1"></i> Applied
+                                        </button>
+                                    @else
+                                    <form action="{{ route('projects.apply', $project) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
+                                            <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
+                                        </button>
+                                    </form>
+                                    @endif
                     </div>
                 </div>
 
@@ -252,6 +302,112 @@
                         <p class="text-sm text-gray-500">No new recommendations at this time.</p>
                     @endforelse
 
+                </div>
+            </div>
+
+
+            {{-- "Incoming Applicants" Section --}}
+<div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-4">Incoming Applicants</h3>
+    <div class="space-y-6">
+        {{-- This outer loop for each project remains the same --}}
+        @forelse ($incomingApplicants as $projectTitle => $applications)
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h4 class="font-bold text-gray-900 mb-3">{{ $projectTitle }}</h4>
+
+                <div class="space-y-4">
+                    {{-- Loop through the applicants for THIS project --}}
+                    @foreach ($applications as $application)
+                        <div class="py-3 border-b border-gray-200 last:border-b-0">
+                            {{-- Row 1: Name and Time --}}
+                            <div class="flex items-baseline justify-between">
+                                <a href="{{ route('profile.show', $application->user) }}" class="font-semibold text-blue-700 hover:underline">
+                                    {{ $application->user->name }}
+                                </a>
+                                <p class="text-xs text-gray-500">
+                                {{ $application->created_at->diffForHumans() }}
+                                </p>
+                            </div>
+
+
+                            <div class="mt-2">
+                                <form action="{{ route('applications.update', $application->id) }}" method="POST" class="flex gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button name="status" value="accepted" class="font-semibold text-xs px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Accept</button>
+                                    <button name="status" value="declined" class="font-semibold text-xs px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">Decline</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @empty
+            <div class="text-center py-4">
+                <p class="text-sm text-gray-500">When someone applies to your projects, you'll see them here.</p>
+            </div>
+        @endforelse
+    </div>
+</div>
+
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Accepted Projects</h3>
+                    <div class="space-y-4">
+                        @forelse ($acceptedProjects as $project)
+                            <div class="bg-green-50 border border-green-200 rounded-lg shadow-sm p-4">
+                                <h4 class="font-bold text-green-800">{{ $project->title }}</h4>
+                                <p class="text-xs text-gray-600 mt-1">
+                                    Posted by
+                                    {{-- This link will now point to the project creator's profile --}}
+                                    <a href="{{ route('profile.show', $project->user) }}" class="font-medium text-gray-900 hover:underline">
+                                        {{-- This displays the organization name, or falls back to the user's name if it doesn't exist --}}
+                                        {{ $project->organization_name ?? $project->user->name }}
+                                    </a>
+                                </p>
+                                <p class="text-sm text-gray-700 mt-1">{{ Str::limit($project->description, 100) }}</p>
+                                <p class="text-xs text-gray-500 mt-2">You were accepted {{ $project->pivot->updated_at->diffForHumans() }}</p>
+                            </div>
+                        @empty
+                            {{-- This block will be displayed if the $acceptedProjects collection is empty --}}
+                            <div class="text-center py-4">
+                                <p class="text-sm text-gray-500">You haven't been accepted to any projects yet.</p>
+                                <a href="{{ route('discover') }}" class="mt-2 inline-block text-sm text-blue-600 hover:underline font-semibold">
+                                    Find opportunities to apply for!
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Pending Projects</h3>
+                    <div class="space-y-4">
+                        @forelse ($pendingProjects as $project)
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm p-4">
+                                <h4 class="font-bold text-yellow-800">{{ $project->title }}</h4>
+                                <p class="text-xs text-gray-600 mt-1">
+                                    Posted by
+                                    <a href="{{ route('profile.show', $project->user) }}" class="font-medium text-gray-900 hover:underline">
+                                        {{ $project->organization_name ?? $project->user->name }}
+                                    </a>
+                                </p>
+                                <p class="text-sm text-gray-700 mt-1">{{ Str::limit($project->description, 300) }}</p>
+                                <p class="text-xs text-gray-500 mt-2">You applied {{ $project->pivot->updated_at->diffForHumans() }}</p>
+                            </div>
+                        @empty
+                            {{-- This block will be displayed if the $acceptedProjects collection is empty --}}
+                            <div class="text-center py-4">
+                                <p class="text-sm text-gray-500">Your pending project applications will show up here!</p>
+                                <a href="{{ route('discover') }}" class="mt-2 inline-block text-sm text-blue-600 hover:underline font-semibold">
+                                    Find opportunities to apply for!
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
 

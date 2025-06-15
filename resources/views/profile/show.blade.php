@@ -52,10 +52,6 @@
                                         </button>
                                     </form>
                                 <form action="{{ route('messages.start', $user) }}" method="GET">
-                                    <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition text-sm">
-                                        <i class="fas fa-user-plus mr-1"></i> Follow
-                                    </button>
-                                <form action="{{ route('messages.start', $user) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-sm">
                                         <i class="fas fa-envelope mr-1"></i> Message
@@ -167,77 +163,128 @@
 
         {{-- DYNAMIC User's Activity / Projects Feed --}}
         <div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Activity</h3>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Activity</h3>
                 {{-- Accepted Projects --}}
-                @if ($acceptedProjects->count())
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold text-green-700 mb-2">Accepted Projects</h4>
-                        <div class="space-y-4">
-                            @foreach ($acceptedProjects as $project)
-                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                                    <h5 class="text-md font-bold text-green-800">{{ $project->title }}</h5>
-                                    <p class="text-sm text-gray-700 mt-1">{{ Str::limit($project->description, 100) }}</p>
-                                    <p class="text-xs text-gray-500 mt-2">You were accepted {{ $project->pivot->created_at->diffForHumans() }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            <div class="space-y-6">
-                @forelse ($user->projects as $project)
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="p-5">
-                            <div class="flex items-start space-x-4">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&size=128&background=EBF4FF&color=7F9CF5" class="w-12 h-12 rounded-lg object-cover" alt="User Avatar">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">
-                                        {{ $user->name }} created a new project · <span class="text-gray-500">{{ $project->created_at->diffForHumans() }}</span>
-                                    </p>
-                                    <h4 class="font-bold text-lg text-gray-800 hover:text-blue-600 cursor-pointer mt-1">{{ $project->title }}</h4>
-                                    <p class="text-sm text-gray-500 mt-1">{{ Str::limit($project->description, 100) }}</p>
-
-                                    {{-- 👇 Tambahan: Menampilkan pelamar --}}
-                                    @if ($project->applications->count())
-                                        <div class="mt-4">
-                                            <h5 class="text-sm font-semibold text-gray-700 mb-2">Applicants:</h5>
-                                            @foreach ($project->applications as $application)
-                                                <div class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded mb-2">
-                                                    <div>
-                                                        <span class="font-medium text-blue-700">{{ $application->user->name }}</span>
-                                                        <span class="text-sm text-gray-500">applied {{ $application->created_at->diffForHumans() }}</span>
-                                                        <span class="ml-2 text-xs px-2 py-0.5 rounded-full 
-                                                            @if($application->status == 'pending') bg-yellow-100 text-yellow-800 
-                                                            @elseif($application->status == 'accepted') bg-green-100 text-green-800 
-                                                            @elseif($application->status == 'declined') bg-red-100 text-red-800 
-                                                            @endif">
-                                                            {{ ucfirst($application->status) }}
-                                                        </span>
-                                                    </div>
-
-                                                    {{-- Tombol accept/decline hanya untuk pemilik project --}}
-                                                    @if (auth()->id() === $user->id && $application->status === 'pending')
-                                                        <form action="{{ route('applications.update', $application->id) }}" method="POST" class="flex gap-2">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button name="status" value="accepted" class="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">Accept</button>
-                                                            <button name="status" value="declined" class="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">Decline</button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                            @endforeach
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Accepted Projects</h3>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="space-y-6">
+                        @forelse ($acceptedProjects as $project)
+                            <div class="bg-white rounded-lg shadow overflow-hidden post-card border-l-4 border-green-500">
+                                <div class="p-5">
+                                    <div class="flex items-start">
+                                        <a href="{{ route('profile.show', $project->user) }}">
+                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $project->user->name }}'s avatar">
+                                        </a>
+                                        <div class="ml-3">
+                                            <a href="{{ route('profile.show', $project->user) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $project->user->name }}</a>
+                                            <p class="text-xs text-gray-500">
+                                                <span>created this project • {{ $project->created_at->diffForHumans() }}</span>
+                                            </p>
                                         </div>
-                                    @endif
+                                    </div>
+
+                                    {{-- Card Body: Project title and description --}}
+                                    <div class="mt-4">
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ $project->title }}</h3>
+                                        <p class="mt-1 text-sm text-gray-700">{{ Str::limit($project->description, 280) }}</p>
+                                    </div>
+                                </div>
+
+                                {{-- Card Footer: A clear status message indicating acceptance --}}
+                                <div class="bg-green-50 px-5 py-3 border-t border-green-200">
+                                    <p class="text-sm font-semibold text-green-800">
+                                        <i class="fas fa-check-circle mr-2"></i>
+
+                                        {{-- If the logged-in user is viewing their own profile --}}
+                                        @if(auth()->id() === $user->id)
+                                            You were accepted {{ $project->pivot->updated_at->diffForHumans() }}
+                                        
+                                        {{-- If viewing another user's profile --}}
+                                        @else
+                                            {{ $user->name }} volunteered {{ $project->pivot->updated_at->diffForHumans() }}
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
+                        @empty
+                            <div class="text-center py-4">
+                                <p class="text-sm text-gray-500">Projects you are accepted into will appear here!</p>
+                                <a href="{{ route('discover') }}" class="mt-2 inline-block text-sm text-blue-600 hover:underline font-semibold">
+                                    Find opportunities to apply for!
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+<div class="mt-8">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">My Projects</h3>
+    <div class="space-y-6">
+        @forelse ($user->projects as $project)
+            {{-- 
+                This is the main card container.
+                It uses a subtle blue left border to signify a project created by the user.
+            --}}
+            <div class="bg-white rounded-lg shadow overflow-hidden post-card border-l-4 border-blue-500">
+                <div class="p-5">
+                    {{-- Card Header: Creator's avatar, name, and post time --}}
+                    <div class="flex items-start">
+                        <a href="{{ route('profile.show', $user) }}">
+                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $user->name }}'s avatar">
+                        </a>
+                        <div class="ml-3">
+                            <a href="{{ route('profile.show', $user) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $user->name }}</a>
+                            <p class="text-xs text-gray-500">
+                                <span>created a new project • {{ $project->created_at->diffForHumans() }}</span>
+                            </p>
                         </div>
                     </div>
-                @empty
-                    <div class="bg-white p-5 rounded-lg shadow-md text-center">
-                        <p class="text-gray-500">{{ $user->name }} has not created any projects yet.</p>
+
+                    {{-- Card Body: Project title and description --}}
+                    <div class="mt-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ $project->title }}</h3>
+                        <p class="mt-1 text-sm text-gray-700">{{ Str::limit($project->description, 280) }}</p>
                     </div>
-                @endforelse
+
+                    {{-- Applicants Section: Neatly integrated with a top border --}}
+                    @if ($project->applications->count())
+                        <div class="mt-5 pt-4 border-t border-gray-200">
+                            <h5 class="text-sm font-semibold text-gray-700 mb-3">Applicants:</h5>
+                            <div class="space-y-3">
+                                @foreach ($project->applications as $application)
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <a href="{{ route('profile.show', $application->user) }}" class="font-medium text-blue-700 hover:underline">{{ $application->user->name }}</a>
+                                            <span class="text-sm text-gray-500 ml-2">applied {{ $application->created_at->diffForHumans() }}</span>
+                                            <span class="ml-2 text-xs px-2 py-0.5 rounded-full 
+                                                @if($application->status == 'pending') bg-yellow-100 text-yellow-800 
+                                                @elseif($application->status == 'accepted') bg-green-100 text-green-800 
+                                                @elseif($application->status == 'declined') bg-red-100 text-red-800 
+                                                @endif">
+                                                {{ ucfirst($application->status) }}
+                                            </span>
+                                        </div>
+                                        @if (auth()->id() === $user->id && $application->status === 'pending')
+                                            <form action="{{ route('applications.update', $application->id) }}" method="POST" class="flex gap-2">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button name="status" value="accepted" class="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">Accept</button>
+                                                <button name="status" value="declined" class="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">Decline</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
-        </div>
+        @empty
+            <div class="bg-white p-5 rounded-lg shadow-md text-center">
+                <p class="text-gray-500">{{ $user->first_name }} has not created any projects yet.</p>
+            </div>
+        @endforelse
+    </div>
+</div>
 
 
         {{-- Edit Profile Modal (No changes here) --}}

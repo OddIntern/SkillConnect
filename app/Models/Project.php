@@ -93,4 +93,9 @@ class Project extends Model
         return $this->hasMany(Application::class);
     }
 
+    public function savers()
+    {
+        return $this->belongsToMany(User::class, 'project_saves')->withTimestamps();
+    }
+
 }

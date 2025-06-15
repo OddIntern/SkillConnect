@@ -187,8 +187,21 @@
                                     <span>{{ $project->volunteers_needed }} volunteers needed</span>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        <i class="far fa-heart mr-1"></i> Save
+                                    @php
+                                        $isSaved = in_array($project->id, $savedProjectIds);
+                                    @endphp
+
+                                    <button
+                                        class="save-btn inline-flex items-center px-3 py-1 border rounded-md text-sm font-medium transition {{
+                                            $isSaved
+                                            ? 'bg-sky-100 text-sky-700 border-sky-200'
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }}"
+                                        data-project-id="{{ $project->id }}"
+                                    >
+                                        {{-- The icon will now also be dynamic --}}
+                                        <i class="fa-bookmark mr-1 {{ $isSaved ? 'fas' : 'far' }}"></i>
+                                        <span class="btn-text">{{ $isSaved ? 'Saved' : 'Save' }}</span>
                                     </button>
                                     @php
                                         $hasApplied = $project->applications->contains('user_id', auth()->id());
@@ -199,12 +212,12 @@
                                             <i class="fas fa-check mr-1"></i> Applied
                                         </button>
                                     @else
-                                        <form action="{{ route('projects.apply', $project->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="px-4 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
-                                                <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
-                                            </button>
-                                        </form>
+                                    <form action="{{ route('projects.apply', $project) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
+                                            <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
+                                        </button>
+                                    </form>
                                     @endif
 
                                     <a href="{{ route('messages.start', ['user' => $project->user->id]) }}" class="px-4 py-1 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
@@ -229,32 +242,199 @@
                 </div>
             </div>
 
-            {{-- Right Sidebar with Map --}}
+            {{-- Right Sidebar --}}
             <div class="hidden lg:block lg:w-1/4">
-                <div class="bg-white rounded-lg shadow p-4 sticky top-24 space-y-4">
-                    <h3 class="text-xl font-semibold mb-6">Recommended For You</h3>
+                {{-- Recommended For You Card --}}
+                <div class="sticky top-24 space-y-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h3 class="text-xl font-semibold mb-3">Recommended For You</h3>
 
-                    @forelse ($recommendedProjects as $recProject)
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
-                                {{-- Placeholder for a project image --}}
-                                <i class="fas fa-tasks text-gray-400"></i>
+                    <div>
+                        @forelse ($recommendedProjects as $recProject)
+                            @php
+                                $icon = 'fa-calendar-day';
+                                $bgColor = 'bg-gray-100';
+                                $iconColor = 'text-gray-500';
+
+                                switch ($recProject->status) {
+                                    case 'Urgent':
+                                        $icon = 'fa-circle-exclamation';
+                                        $bgColor = 'bg-red-100';
+                                        $iconColor = 'text-red-500';
+                                        break;
+                                    case 'Environmental':
+                                        $icon = 'fa-tree';
+                                        $bgColor = 'bg-green-100';
+                                        $iconColor = 'text-green-500';
+                                        break;
+                                    case 'Education':
+                                        $icon = 'fa-graduation-cap';
+                                        $bgColor = 'bg-blue-100';
+                                        $iconColor = 'text-blue-500';
+                                        break;
+                                    case 'Community':
+                                        $icon = 'fa-users';
+                                        $bgColor = 'bg-yellow-100';
+                                        $iconColor = 'text-yellow-500';
+                                        break;
+                                    case 'Animals':
+                                        $icon = 'fa-paw';
+                                        $bgColor = 'bg-orange-100';
+                                        $iconColor = 'text-orange-500';
+                                        break;
+                                    case 'Health':
+                                        $icon = 'fa-heart-pulse';
+                                        $bgColor = 'bg-rose-100';
+                                        $iconColor = 'text-rose-500';
+                                        break;
+                                    case 'Programming':
+                                        $icon = 'fa-code';
+                                        $bgColor = 'bg-indigo-100';
+                                        $iconColor = 'text-indigo-500';
+                                        break;
+                                }
+                            @endphp
+
+                            <div class="flex items-start py-4 @if(!$loop->last) border-b border-gray-200 @endif">
+                                {{-- MODIFIED: Replaced placeholder with dynamic status badge --}}
+                                <div class="flex-shrink-0 h-12 w-12 rounded-lg {{ $bgColor }} flex items-center justify-center">
+                                    <i class="fas {{ $icon }} {{ $iconColor }} text-xl"></i>
+                                </div>
+
+                                <div class="ml-3">
+                                    <a href="#" class="text-m font-medium text-gray-900 hover:underline">{{ $recProject->title }}</a>
+                                    
+                                    @if ($recProject->matched_skill)
+                                        <p class="text-xs text-gray-500">Matches your <span class="font-medium">{{ $recProject->matched_skill }}</span> skill</p>
+                                    @else
+                                        <p class="text-xs text-gray-500">Recommended for you</p>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <a href="#" class="text-m font-medium text-gray-900 hover:underline">{{ $recProject->title }}</a>
-                                <p class="text-xs text-gray-500">Matches your skills</p>
+                        @empty
+                            <p class="text-sm text-gray-500">Add skills to your profile to get personalized recommendations!</p>
+                        @endforelse
+                    </div>
+                </div>
+
+            {{-- Saved Projects Card --}}
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="font-xl font-semibold text-gray-900 mb-3">Saved Projects</h3>
+                <div>
+                    @forelse ($savedProjectsForSidebar as $savedProject)
+                        {{-- NEW: Logic to determine icon style based on project status --}}
+                        @php
+                            $icon = 'fa-calendar-day';
+                            $bgColor = 'bg-gray-100';
+                            $iconColor = 'text-gray-500';
+
+                            switch ($savedProject->status) {
+                                case 'Urgent':
+                                    $icon = 'fa-circle-exclamation';
+                                    $bgColor = 'bg-red-100';
+                                    $iconColor = 'text-red-500';
+                                    break;
+                                case 'Environmental':
+                                    $icon = 'fa-tree';
+                                    $bgColor = 'bg-green-100';
+                                    $iconColor = 'text-green-500';
+                                    break;
+                                case 'Education':
+                                    $icon = 'fa-graduation-cap';
+                                    $bgColor = 'bg-blue-100';
+                                    $iconColor = 'text-blue-500';
+                                    break;
+                                case 'Community':
+                                    $icon = 'fa-users';
+                                    $bgColor = 'bg-yellow-100';
+                                    $iconColor = 'text-yellow-500';
+                                    break;
+                                case 'Animals':
+                                    $icon = 'fa-paw';
+                                    $bgColor = 'bg-orange-100';
+                                    $iconColor = 'text-orange-500';
+                                    break;
+                                case 'Health':
+                                    $icon = 'fa-heart-pulse';
+                                    $bgColor = 'bg-rose-100';
+                                    $iconColor = 'text-rose-500';
+                                    break;
+                                case 'Programming':
+                                    $icon = 'fa-code';
+                                    $bgColor = 'bg-indigo-100';
+                                    $iconColor = 'text-indigo-500';
+                                    break;
+                            }
+                        @endphp
+
+                        {{-- MODIFIED: Added flex layout and icon --}}
+                        <div class="flex items-start py-4 @if(!$loop->last) border-b border-gray-200 @endif">
+                            {{-- The badge icon div --}}
+                            <div class="flex-shrink-0 h-12 w-12 rounded-lg {{ $bgColor }} flex items-center justify-center">
+                                <i class="fas {{ $icon }} {{ $iconColor }} text-xl"></i>
+                            </div>
+                            {{-- The project details div --}}
+                            <div class="ml-4">
+                                <a href="#" class="text-sm font-semibold text-blue-600 hover:underline">{{ $savedProject->title }}</a>
+                                <p class="text-xs text-gray-600 mt-1">
+                                    Posted by
+                                    <a href="{{ route('profile.show', $savedProject->user) }}" class="font-medium text-gray-800 hover:underline">
+                                        {{ $savedProject->organization_name ?? $savedProject->user->name }}
+                                    </a>
+                                </p>
+                                <p class="text-xs text-gray-500">Saved {{ $savedProject->pivot->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500">Add skills to your profile to get personalized recommendations!</p>
+                        <p class="text-sm text-gray-500">You haven't saved any projects yet.</p>
                     @endforelse
                 </div>
             </div>
+            </div>
+        </div>
         </div>
     </div>
 
     {{-- This slot is for any page-specific JavaScript files you might have --}}
-    <x-slot name="scripts">
-        {{-- <script src="{{ asset('js/discovery_page_specific.js') }}"></script> --}}
-    </x-slot>
+ 
+
+
+
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        document.querySelectorAll('.save-btn').forEach(button => {
+            button.addEventListener('click', async function () {
+                const projectId = this.dataset.projectId;
+                const icon = this.querySelector('i');
+                const textSpan = this.querySelector('.btn-text');
+
+                const response = await fetch(`/projects/${projectId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                // Update button text and style
+                textSpan.textContent = data.is_saved ? 'Saved' : 'Save';
+                this.classList.toggle('bg-sky-100', data.is_saved);
+                this.classList.toggle('text-sky-700', data.is_saved);
+                this.classList.toggle('border-sky-200', data.is_saved);
+                this.classList.toggle('bg-white', !data.is_saved);
+                this.classList.toggle('text-gray-700', !data.is_saved);
+                this.classList.toggle('border-gray-300', !data.is_saved);
+
+                // Update icon style (solid vs regular)
+                icon.classList.toggle('fas', data.is_saved); // solid icon
+                icon.classList.toggle('far', !data.is_saved); // regular icon
+            });
+        });
+    });
+    </script>
+    @endpush
 </x-app-layout>

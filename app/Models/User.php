@@ -134,6 +134,17 @@ class User extends Authenticatable // Or your base User class
                     ->withTimestamps();
     }
 
+    public function pendingProjects()
+    {
+        return $this->belongsToMany(Project::class, 'applications')
+                    ->wherePivot('status', 'pending')
+                    ->withTimestamps();
+    }
 
+
+    public function savedProjects()
+    {
+        return $this->belongsToMany(Project::class, 'project_saves')->withTimestamps();
+    }
 
 }

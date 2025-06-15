@@ -22,11 +22,12 @@ Route::get('/dashboard', DashboardController::class)->middleware(['auth', 'verif
 
 Route::get('/discover', [App\Http\Controllers\ProjectController::class, 'index'])->name('discover');
 
-
+//Auth Routes
 Route::middleware('auth')->group(function () {
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::patch('/profile/{user}', [App\Http\Controllers\ProfileController::class, 'update'])->name('public-profile.update');
+    Route::post('/projects/{project}/save', [ProjectController::class, 'toggleSave'])->name('projects.toggleSave');
 });
 
 Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');

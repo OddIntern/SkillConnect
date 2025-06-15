@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\Application;
 
+use Illuminate\Support\Carbon; 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -32,10 +34,37 @@ class DashboardController extends Controller
                                 ->take(5)
                                 ->get();
 
+            //  Query for Accepted Projects & Pending---
+        $acceptedProjects = $user->acceptedProjects()
+                         ->wherePivot('status', 'accepted')
+                         ->with('user') 
+                         ->latest('pivot_updated_at') 
+                         ->get();
+        $pendingProjects = $user->pendingProjects()->with('user')->get();
+
+        //  incoming applicants for the user's own projects
+        $myProjectIds = $user->projects()->pluck('id');
+        $incomingApplicants = Application::whereIn('project_id', $myProjectIds)
+                                               ->where('status', 'pending')
+                                               ->with('user', 'project') 
+                                               ->latest()
+                                               ->get()
+                                               ->groupBy('project.title');
+                                               
+        $upcomingEvents = $user->acceptedProjects()
+                                ->wherePivot('status', 'accepted')
+                                ->whereNotNull('schedule_details')
+                                ->latest('pivot_updated_at')
+                                ->take(3)
+                                ->get();
 
         return view('home', [
             'projects' => $projects,
             'recommendedUsers' => $recommendedUsers,
+            'acceptedProjects' => $acceptedProjects,
+            'pendingProjects' => $pendingProjects,
+            'incomingApplicants' => $incomingApplicants,
+            'upcomingEvents' => $upcomingEvents,
         ]);
     }
 }

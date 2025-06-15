@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -25,28 +26,55 @@ class ProjectController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $recommendedProjects = collect(); // Start with an empty collection
+        $recommendedProjects = collect();
+        $savedProjectIds = [];
+        $savedProjectsForSidebar = collect();
 
-        // Only run this logic if a user is logged in and has skills on their profile
-        if (auth()->check() && auth()->user()->skills->isNotEmpty()) {
-            $userSkills = auth()->user()->skills->pluck('name');
+        // Only run this logic if a user is logged in
+        if (auth()->check()) {
+            $user = auth()->user();
 
-            $recommendedProjects = Project::query()
-                ->where('user_id', '!=', auth()->id()) // Exclude the user's own projects
-                ->where(function ($query) use ($userSkills) {
-                    foreach ($userSkills as $skill) {
-                        // Find projects where the skills_required text contains one of the user's skills
-                        $query->orWhere('skills_required', 'like', '%' . $skill . '%');
-                    }
-                })
-                ->inRandomOrder() // Show a random selection of matched projects
-                ->take(3) 
-                ->get();
+                // --- NEW: Logic for the Save Feature ---
+            $savedProjectIds = $user->savedProjects()->pluck('projects.id')->toArray();
+
+            // Fetch the 5 most recently saved projects and include their author's data
+            $savedProjectsForSidebar = $user->savedProjects()
+                                            ->with('user') // Eager load the user for the "Posted by" info
+                                            ->latest('project_saves.created_at')
+                                            ->take(5)
+                                            ->get();
+
+                // --- Your existing recommendation logic ---
+            if ($user->skills->isNotEmpty()) {
+                $userSkills = $user->skills->pluck('name');
+
+                $recommendedProjects = Project::query()
+                    ->where('user_id', '!=', $user->id)
+                    ->where(function ($query) use ($userSkills) {
+                        foreach ($userSkills as $skill) {
+                            $query->orWhere('skills_required', 'like', '%' . $skill . '%');
+                        }
+                    })
+                    ->inRandomOrder()
+                    ->take(3)
+                    ->get();
+                
+                // NEW: Find which skill matched for each recommended project
+                foreach ($recommendedProjects as $project) {
+                    // Create an array of skills required by the project
+                    $projectSkills = collect(explode(',', $project->skills_required))->map('trim');
+                    
+                    // Find the first skill that the user has and the project requires
+                    $project->matched_skill = $userSkills->intersect($projectSkills)->first();
+                }
+            }
         }
 
         return view('discovery', [
             'projects' => $projects,
-            'recommendedProjects' => $recommendedProjects, // Pass the new data to the view
+            'recommendedProjects' => $recommendedProjects,
+            'savedProjectIds' => $savedProjectIds, 
+            'savedProjectsForSidebar' => $savedProjectsForSidebar, 
         ]);
     }
 
@@ -122,25 +150,47 @@ class ProjectController extends Controller
         //
     }
 
-    public function apply(Project $project)
-    {
-        $user = auth()->user();
 
-        // Cek apakah sudah apply
-        $alreadyApplied = $project->applications()->where('user_id', $user->id)->exists();
-        if ($alreadyApplied) {
-            return back()->with('error', 'You have already applied.');
+    public function apply(Request $request, Project $project): RedirectResponse
+    {
+        // 1. Prevent users from applying to their own project (Important!)
+        if ($project->user_id === auth()->id()) {
+            return back()->with('error', 'You cannot apply to your own project.');
         }
 
-        // Buat application baru
+        // 2.A clean check using the relationship and exists()
+        if ($project->applications()->where('user_id', auth()->id())->exists()) {
+            return back()->with('info', 'You have already applied for this project.');
+        }
+
+        
         $project->applications()->create([
-            'user_id' => $user->id,
-            'status' => 'pending'
+            'user_id' => auth()->id(),
         ]);
 
-        return back()->with('success', 'You have successfully applied!');
+        return back()->with('success', 'Your application has been submitted!');
     }
 
 
+
+        /**
+     * Toggles the saved state of a project for the authenticated user.
+     */
+    public function toggleSave(Request $request, Project $project)
+    {
+        $user = Auth::user();
+        
+        // The toggle() method is perfect for this.
+        // It attaches if not attached, and detaches if already attached.
+        $user->savedProjects()->toggle($project);
+
+        // We check if the project is now in the saved list to return the current state
+        $isSaved = $user->savedProjects()->where('project_id', $project->id)->exists();
+
+        return response()->json([
+            'success' => true,
+            'is_saved' => $isSaved
+        ]);
+    }
 
 }

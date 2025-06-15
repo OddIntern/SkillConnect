@@ -44,7 +44,7 @@
     </div>
     
     {{-- This is the new placeholder for page-specific JS files --}}
-    {{ $scripts ?? '' }}
+    @stack('scripts')
 
     <div 
     x-show="openModal === 'createProject'" 
