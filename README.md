@@ -31,7 +31,7 @@ This platform allows users to:
 - 📄 **Project Details:** See comprehensive information about each opportunity.
 - ➕ **Create Projects:** Users can post their own projects to find volunteers.
 - 📩 **Apply to Projects:** Apply to opportunities of interest.
-- 💬 **Direct Messaging:** Communicate with project owners (feature in development).
+- 💬 **Direct Messaging:** Communicate with project owners.
 - 👤 **User Profiles:** A profile page that displays a user's activity, skills, and experience.
 ---
 ### ✅ Prerequisites
