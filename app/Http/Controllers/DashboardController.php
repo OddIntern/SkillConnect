@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         // Query for the main project feed (this part is the same)
-        $projects = Project::with('user')->latest()->paginate(5);
+        $projects = Project::with('user')->withCount(['comments', 'likers'])->latest()->paginate(5);
 
         // --- START: New Query for Recommended Users ---
 
@@ -58,6 +58,8 @@ class DashboardController extends Controller
                                 ->take(3)
                                 ->get();
 
+        $likedProjectIds = auth()->check() ? auth()->user()->likedProjects()->pluck('projects.id')->toArray() : [];
+
         return view('home', [
             'projects' => $projects,
             'recommendedUsers' => $recommendedUsers,
@@ -65,6 +67,7 @@ class DashboardController extends Controller
             'pendingProjects' => $pendingProjects,
             'incomingApplicants' => $incomingApplicants,
             'upcomingEvents' => $upcomingEvents,
+            'likedProjectIds' => $likedProjectIds,
         ]);
     }
 }

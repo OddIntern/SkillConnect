@@ -20,7 +20,7 @@ class ProjectController extends Controller
     public function index(Request $request): View
     {
         // This is the existing query for the main list of projects
-        $projects = Project::with('user')
+        $projects = Project::with('user')->withCount(['comments', 'likers'])
             ->filter($request->only(['search', 'categories', 'skills', 'location_type']))
             ->sort($request->get('sort'))
             ->paginate(10)
@@ -70,11 +70,27 @@ class ProjectController extends Controller
             }
         }
 
+        
+
         return view('discovery', [
             'projects' => $projects,
             'recommendedProjects' => $recommendedProjects,
             'savedProjectIds' => $savedProjectIds, 
             'savedProjectsForSidebar' => $savedProjectsForSidebar, 
+        ]);
+    }
+
+        public function toggleLike(Request $request, Project $project)
+    {
+        $user = Auth::user();
+        $user->likedProjects()->toggle($project);
+
+        // Return the new count of likes for this project
+        $likesCount = $project->likers()->count();
+
+        return response()->json([
+            'success' => true,
+            'likes_count' => $likesCount,
         ]);
     }
 
@@ -121,7 +137,7 @@ class ProjectController extends Controller
     public function show(Project $project): View
     {
         // Eager load the project's user and its comments with their users
-        $project->load('user', 'comments.user');
+        $project->load('user', 'comments.user', 'applications');
 
         return view('projects.show', ['project' => $project]);
     }

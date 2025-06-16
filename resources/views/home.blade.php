@@ -231,34 +231,41 @@
                     </div>
 
                     {{-- Card Footer --}}
-                    <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t">
-                        <div class="flex space-x-4">
-                            <button class="flex items-center text-gray-500 hover:text-blue-500">
-                                <i class="far fa-heart mr-1"></i>
-                                <span>24</span> {{-- Placeholder --}}
-                            </button>
-                            <a href="{{ route('projects.show', $project) }}" class="flex items-center text-gray-500 hover:text-green-500">
-                                <i class="far fa-comment mr-1"></i>
-                                <span>{{ $project->comments_count ?? 0 }}</span>
-                            </a>
-                        </div>
-                             @php
-                               $hasApplied = $project->applications->contains('user_id', auth()->id());
-                            @endphp
+<div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t">
+    <div @click.stop class="flex space-x-4">
+        @php
+            $hasLiked = in_array($project->id, $likedProjectIds);
+        @endphp
+        {{-- Dynamic Like Button --}}
+        <button class="like-btn flex items-center transition {{ $hasLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500' }}" data-project-id="{{ $project->id }}">
+            <i class="{{ $hasLiked ? 'fas' : 'far' }} fa-heart mr-1"></i>
+            <span class="like-count">{{ $project->likers_count }}</span>
+        </button>
 
-                                    @if($hasApplied)
-                                        <button class="px-4 py-1 bg-gray-400 text-white rounded-md text-sm font-medium cursor-not-allowed" disabled>
-                                            <i class="fas fa-check mr-1"></i> Applied
-                                        </button>
-                                    @else
-                                    <form action="{{ route('projects.apply', $project) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
-                                            <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
-                                        </button>
-                                    </form>
-                                    @endif
-                    </div>
+        {{-- Dynamic Comment Count (already correct) --}}
+        <a href="#" @click.prevent="openProjectModal({{ $project->id }})" class="flex items-center text-gray-500 hover:text-green-500">
+            <i class="far fa-comment mr-1"></i>
+            <span>{{ $project->comments_count }}</span>
+        </a>
+    </div>
+
+    @php
+        $hasApplied = $project->applications->contains('user_id', auth()->id());
+    @endphp
+
+    @if($hasApplied)
+        <button @click.stop class="px-4 py-1 bg-gray-400 text-white rounded-md text-sm font-medium cursor-not-allowed" disabled>
+            <i class="fas fa-check mr-1"></i> Applied
+        </button>
+    @else
+        <form @click.stop action="{{ route('projects.apply', $project) }}" method="POST">
+            @csrf
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
+                <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
+            </button>
+        </form>
+    @endif
+</div>
                 </div>
 
                 @empty
@@ -414,5 +421,46 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.querySelectorAll('.like-btn').forEach(button => {
+        button.addEventListener('click', async function (event) {
+            // Check if user is authenticated
+            if (!{{ auth()->check() ? 'true' : 'false' }}) {
+                window.location.href = '{{ route('login') }}';
+                return;
+            }
+
+            const projectId = this.dataset.projectId;
+            const icon = this.querySelector('i');
+            const countSpan = this.querySelector('.like-count');
+
+            const response = await fetch(`/projects/${projectId}/like`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                // Update the count
+                countSpan.textContent = data.likes_count;
+                // Toggle the button's liked state
+                this.classList.toggle('text-red-500');
+                this.classList.toggle('text-gray-500');
+                icon.classList.toggle('fas'); // solid
+                icon.classList.toggle('far'); // regular
+            }
+        });
+    });
+});
+</script>
+@endpush
 
 </x-app-layout>

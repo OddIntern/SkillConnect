@@ -147,4 +147,8 @@ class User extends Authenticatable // Or your base User class
         return $this->belongsToMany(Project::class, 'project_saves')->withTimestamps();
     }
 
+    public function likedProjects()
+{
+    return $this->belongsToMany(Project::class, 'project_likes')->withTimestamps();
+}
 }

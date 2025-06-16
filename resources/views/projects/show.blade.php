@@ -46,8 +46,34 @@
                 <i class="fas fa-users mr-3 w-4 text-center text-gray-400"></i>
                 <span>{{ $project->volunteers_needed }} volunteers needed</span>
             </div>
+
+    @php
+        $hasApplied = $project->applications->contains('user_id', auth()->id());
+    @endphp
+
+    @if($project->user_id === auth()->id())
+        {{-- If the user is the project owner, show a disabled button --}}
+        <button class="px-1 py-1 bg-gray-300 text-white rounded-full text-base font-medium cursor-not-allowed" disabled>
+            Manage Your Project
+        </button>
+    @elseif($hasApplied)
+        {{-- If the user has already applied, show a disabled "Applied" button --}}
+        <button class="px-1 py-1 bg-gray-400 text-white rounded-full text-base font-medium cursor-not-allowed" disabled>
+            <i class="fas fa-check mr-2"></i> Applied
+        </button>
+    @else
+        {{-- Otherwise, show the "Volunteer" button inside a form --}}
+        <form action="{{ route('projects.apply', $project) }}" method="POST" class="inline-block">
+            @csrf
+            <button type="submit" class="px-1 py-1 bg-blue-600 text-white rounded-full text-base font-medium hover:bg-blue-700 transition">
+                <i class="fas fa-hand-holding-heart mr-2"></i> Volunteer for this Project
+            </button>
+        </form>
+    @endif
         </div>
     </div>
+
+    
 
     {{-- Comments --}}
     <div>
@@ -59,7 +85,7 @@
             <div class="flex items-start space-x-3">
                 <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" alt="Your avatar">
                 <div class="flex-1">
-                    <textarea name="body" rows="2" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Add a public comment..."></textarea>
+                    <textarea name="content" rows="2" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Add a public comment..."></textarea>
                     <div class="text-right mt-2">
                         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Post Comment</button>
                     </div>
@@ -79,7 +105,7 @@
                             <a href="{{ route('profile.show', $comment->user) }}" class="font-semibold text-sm mr-2 hover:underline">{{ $comment->user->name }}</a>
                             <p class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans() }}</p>
                         </div>
-                        <p class="text-sm text-gray-700 mt-1">{{ $comment->body }}</p>
+                        <p class="text-sm text-gray-700 mt-1">{{ $comment->content }}</p>
                     </div>
                 </div>
             @empty

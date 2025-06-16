@@ -98,4 +98,8 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'project_saves')->withTimestamps();
     }
 
+    public function likers()
+{
+    return $this->belongsToMany(User::class, 'project_likes')->withTimestamps();
+}
 }

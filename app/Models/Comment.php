@@ -18,7 +18,7 @@ class Comment extends Model
     protected $fillable = [
         'project_id',
         'user_id',
-        'body',
+        'content',
     ];
 
     public function user(): BelongsTo

@@ -51,8 +51,7 @@ Route::post('/messages/{conversation}', [ConversationController::class, 'storeMe
 
 Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
-// Komentar dulu!
-Route::get('/projects/{project}/comments', [ProjectController::class, 'show_comment'])->name('comments.show');
+
 Route::post('/projects/{project}/comments', [CommentController::class, 'store'])->name('comments.store');
 
 // Baru detail proyek
@@ -70,4 +69,6 @@ Route::middleware('auth')->group(function () {
     // Route untuk update aplikasi (accept/decline)
     Route::patch('/applications/{application}', [ApplicationController::class, 'update'])->name('applications.update');
 }); 
+
+Route::post('/projects/{project}/like', [ProjectController::class, 'toggleLike'])->name('projects.toggleLike');
 require __DIR__.'/auth.php';

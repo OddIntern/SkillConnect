@@ -12,18 +12,19 @@ class CommentController extends Controller
 {
     public function store(Request $request, Project $project): RedirectResponse
     {
+
         $validated = $request->validate([
-            'content' => 'required|string',
+            'content' => 'required|string|max:2500',
         ]);
 
-        // This is the elegant way to create a related model.
-        // It automatically sets the project_id for the comment.
+        // This part correctly creates the related comment.
+        // It automatically sets the project_id.
         $project->comments()->create([
             'user_id' => auth()->id(),
-            'content' => $validated['content'],
+            'content' => $validated['content'], 
         ]);
 
-        // The success message is now in English
+        // This will now work correctly.
         return back()->with('success', 'Comment posted successfully!');
     }
 }
