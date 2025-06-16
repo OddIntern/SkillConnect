@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>SkillConnect - Connect Through Volunteering</title>
         
+        
+        <link rel="icon" type="image/png" href="{{ asset('images/hand.png') }}">
+            
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <style>
@@ -18,8 +22,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
-                        <i class="fas fa-hands-helping text-blue-500 text-2xl mr-2"></i>
-                        <span class="text-xl font-bold text-blue-600">SkillConnect</span>
+                    <img class="h-12 w-50" src="{{ asset('images/skillconnect-logo.png') }}" alt="SkillConnect Logo">
                     </div>
                     <div class="flex items-center space-x-4">
                         @if (Route::has('login'))

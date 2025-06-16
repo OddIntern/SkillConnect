@@ -15,9 +15,8 @@ class DashboardController extends Controller
 
     public function __invoke(Request $request): View
     {
-        $user = auth()->user();
-
-        // Query for the main project feed (this part is the same)
+        $user = auth()->user()->load('skills');
+        
         $projects = Project::with('user')->withCount(['comments', 'likers'])->latest()->paginate(5);
 
         // --- START: New Query for Recommended Users ---
@@ -61,6 +60,7 @@ class DashboardController extends Controller
         $likedProjectIds = auth()->check() ? auth()->user()->likedProjects()->pluck('projects.id')->toArray() : [];
 
         return view('home', [
+            'user' => $user,
             'projects' => $projects,
             'recommendedUsers' => $recommendedUsers,
             'acceptedProjects' => $acceptedProjects,

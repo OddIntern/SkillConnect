@@ -9,6 +9,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\LandingPageController; 
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\FollowController;
 
 
 

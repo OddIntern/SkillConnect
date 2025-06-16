@@ -1,21 +1,29 @@
 <x-app-layout>
-    {{-- This div now controls all modals. We've added `modalTab` to handle the new modal's state --}}
+
+    <x-slot name="title">
+        {{ __('SkillConnect - Profile') }}
+    </x-slot>
     <div x-data="{ activeModal: null, modalTab: 'followers' }" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        @if (session('success'))
-            {{-- ... success message display ... --}}
-        @endif
+
 
         {{-- Profile Header Card --}}
         <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
             <div>
-                <img class="h-48 w-full object-cover" src="https://images.unsplash.com/photo-1504805572947-34fad45aed93?q=80&w=2070&auto=format&fit=crop" alt="Profile background">
+                @if ($user->banner_path)
+                    <img class="h-48 w-full object-cover" src="{{ Storage::url($user->banner_path) }}" alt="Profile banner">
+                @else
+                    <img class="h-48 w-full object-cover" src="https://images.unsplash.com/photo-1504805572947-34fad45aed93?q=80&w=2070&auto=format&fit=crop" alt="Profile background">
+                @endif
             </div>
             <div class="p-6">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                                        <div class="flex items-start">
-                        {{-- NOTE: We'll make this dynamic after adding an 'avatar_path' to the users table --}}
+                    <div class="flex items-start">    
+                        @if ($user->avatar_path)
+                        <img class="h-28 w-28 rounded-full border-4 border-white -mt-20" src="{{ Storage::url($user->avatar_path) }}" alt="{{ $user->name }}'s avatar">
+                    @else
                         <img class="h-28 w-28 rounded-full border-4 border-white -mt-20" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="{{ $user->name }}'s avatar">
+                    @endif
                         <div class="mt-2 ml-4">
                             <h1 class="text-2xl font-bold text-gray-900">{{ $user->first_name }} {{ $user->last_name }}</h1>
                             <p class="text-sm text-gray-600">{{ $user->headline ?? 'No headline provided.' }}</p>
@@ -173,7 +181,13 @@
                                 <div class="p-5">
                                     <div class="flex items-start">
                                         <a href="{{ route('profile.show', $project->user) }}">
-                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $project->user->name }}'s avatar">
+                                            <a href="{{ route('profile.show', $project->user) }}" @click.stop>
+                                                @if ($project->user->avatar_path)
+                                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($project->user->avatar_path) }}" alt="{{ $project->user->name }}'s avatar">
+                                                @else
+                                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $project->user->name }}'s avatar">
+                                                @endif
+                                            </a>
                                         </a>
                                         <div class="ml-3">
                                             <a href="{{ route('profile.show', $project->user) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $project->user->name }}</a>
@@ -220,16 +234,16 @@
     <h3 class="text-xl font-semibold text-gray-800 mb-4">My Projects</h3>
     <div class="space-y-6">
         @forelse ($user->projects as $project)
-            {{-- 
-                This is the main card container.
-                It uses a subtle blue left border to signify a project created by the user.
-            --}}
             <div class="bg-white rounded-lg shadow overflow-hidden post-card border-l-4 border-blue-500">
                 <div class="p-5">
                     {{-- Card Header: Creator's avatar, name, and post time --}}
                     <div class="flex items-start">
-                        <a href="{{ route('profile.show', $user) }}">
-                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $user->name }}'s avatar">
+                        <a href="{{ route('profile.show', $user) }}" @click.stop>
+                            @if ($user->avatar_path)
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($user->avatar_path) }}" alt="{{ $user->name }}'s avatar">
+                            @else
+                                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $user->name }}'s avatar">
+                            @endif
                         </a>
                         <div class="ml-3">
                             <a href="{{ route('profile.show', $user) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $user->name }}</a>
@@ -287,7 +301,7 @@
 </div>
 
 
-        {{-- Edit Profile Modal (No changes here) --}}
+        {{-- Edit Profile Modal--}}
         <div x-show="openModal === 'editProfile'" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
             <div @click.away="openModal = null" class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 mx-4">
                 {{-- Modal Header --}}
@@ -296,7 +310,7 @@
                     <button @click="openModal = null" class="text-gray-400 hover:text-gray-600">&times;</button>
                 </div>
                 {{-- Main Edit Form --}}
-                <form action="{{ route('public-profile.update', $user) }}" method="POST">
+                <form action="{{ route('public-profile.update', $user) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
                     <div class="space-y-4">
@@ -319,6 +333,18 @@
                             <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
                             <input type="text" name="location" id="location" value="{{ old('location', $user->location) }}" placeholder="e.g., North Jakarta, Indonesia" class="mt-1 w-full rounded-md border-gray-300 shadow-sm">
                         </div>
+                        {{-- Profile Picture Upload --}}
+                        <div>
+                            <label for="avatar" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+                            <input type="file" name="avatar" id="avatar" class="mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+
+                        {{-- Banner Image Upload --}}
+                        <div>
+                            <label for="banner" class="block text-sm font-medium text-gray-700">Banner Image</label>
+                            <input type="file" name="banner" id="banner" class="mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+
                         <div>
                             <label for="about_me" class="block text-sm font-medium text-gray-700">About Me</label>
                             <textarea name="about_me" id="about_me" rows="4" class="mt-1 w-full rounded-md border-gray-300 shadow-sm" >{{ old('about_me', $user->about_me) }}</textarea>
@@ -330,7 +356,7 @@
                         </div>
                     </div>
                     <div class="flex justify-between items-center mt-6 pt-4 border-t">
-                        {{-- New button to switch to the 'Add Experience' modal --}}
+                        {{-- 'Add Experience' modal --}}
                         <button type="button" @click="openModal = 'addExperience'" class="text-sm text-blue-600 hover:underline">Manage Experiences</button>
                         <div class="flex space-x-4">
                            <button type="button" @click="openModal = null" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition">Cancel</button>
@@ -341,7 +367,7 @@
             </div>
         </div>
         
-        {{-- Add Experience Modal (No changes here) --}}
+        {{-- Add Experience Modal --}}
         <div x-show="openModal === 'addExperience'" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
              <div @click.away="openModal = null" class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 mx-4">
                 <div class="flex justify-between items-center border-b pb-3 mb-4">

@@ -1,6 +1,7 @@
 {{-- resources/views/messages/index.blade.php --}}
 @extends('layouts.messaging')
 
+
 {{-- This section will be injected into the 'conversation-list' yield in our layout --}}
 @section('conversation-list')
     @include('messages._conversation-list', ['conversations' => $conversations])

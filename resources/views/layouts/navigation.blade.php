@@ -1,13 +1,13 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 sticky top-0 z-50">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <div class="shrink-0 flex items-center">
+                    <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <i class="fas fa-hands-helping text-blue-500 text-2xl mr-2"></i>
-                        <span class="text-xl font-bold text-blue-600">SkillConnect</span>
+                    <img class="h-12 w-50" src="{{ asset('images/skillconnect-logo.png') }}" alt="SkillConnect Logo">
                     </a>
                 </div>
+
 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -23,12 +23,19 @@
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ml-6">
-                <button @click.prevent="openCreatePostModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition duration-300 mr-4">
+                 <button @click.prevent="openCreatePostModal()" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-full font-medium transition duration-300 text-sm mr-4">
                     <i class="fas fa-plus mr-1"></i> New Post
-                </button>   
+                </button>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
+                        {{-- MODIFIED: Added user avatar to the dropdown button --}}
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            @if (Auth::user()->avatar_path)
+                                <img class="h-8 w-8 rounded-full object-cover mr-2" src="{{ Storage::url(Auth::user()->avatar_path) }}" alt="{{ Auth::user()->name }}'s avatar">
+                            @else
+                                <img class="h-8 w-8 rounded-full mr-2" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}" alt="{{ Auth::user()->name }}'s avatar">
+                            @endif
+                            
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ml-1">
@@ -40,8 +47,14 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        {{-- NEW: Added Profile link --}}
+                        <x-dropdown-link :href="route('profile.show', auth()->user())">
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+                        
+                        {{-- Existing Settings Link --}}
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('Settings') }}
                         </x-dropdown-link>
 
                         <form method="POST" action="{{ route('logout') }}">
@@ -71,10 +84,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Home') }}
-            </x-responsive-nav-link>
-             <x-responsive-nav-link :href="route('discover')" :active="request()->routeIs('discover')">
-                {{ __('Discover') }}
+                {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>
 
@@ -85,8 +95,12 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
+                <x-responsive-nav-link :href="route('profile.show', auth()->user())">
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('profile.edit')">
+                    {{ __('Settings') }}
                 </x-responsive-nav-link>
 
                 <form method="POST" action="{{ route('logout') }}">

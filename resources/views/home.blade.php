@@ -1,4 +1,8 @@
 <x-app-layout>
+
+    <x-slot name="title">
+     {{ __('SkillConnect - Home') }}
+    </x-slot>
     {{-- Hero Section --}}
     <div class="gradient-bg text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,13 +59,30 @@
                         <div class="px-4 pb-6 relative">
                             <div class="flex justify-center">
                                 <div class="rounded-full -mt-12 border-4 border-white overflow-hidden">
-                                    {{-- Using a dynamic placeholder avatar based on the user's name --}}
-                                    <img class="h-24 w-24 rounded-full avatar-ring" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="{{ auth()->user()->name }}'s avatar">
+                                    @if (auth()->user()->avatar_path)
+                                        <img class="h-24 w-24 rounded-full object-cover avatar-ring" src="{{ Storage::url(auth()->user()->avatar_path) }}" alt="{{ auth()->user()->name }}'s avatar">
+                                    @else
+                                        <img class="h-24 w-24 rounded-full avatar-ring" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="{{ auth()->user()->name }}'s avatar">
+                                    @endif
                                 </div>
                             </div>
                             <div class="text-center mt-4">
                                 <h2 class="text-lg font-semibold text-gray-900">{{ auth()->user()->name }}</h2>
                                 <p class="text-sm text-gray-600">{{ auth()->user()->headline ?? ' ' }}</p>
+                                
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 text-center">Top Skills</h4>
+                                <div class="flex flex-wrap justify-center gap-2">
+                                    {{-- Loop through the first 5 skills --}}
+                                    @forelse ($user->skills->take(5) as $skill)
+                                        <span class="bg-sky-100 text-sky-800 text-xs font-medium py-1 px-3 rounded-full">
+                                            {{ $skill->name }}
+                                        </span>
+                                    @empty
+                                        <p class="text-xs text-gray-500">No skills added yet.</p>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
                     </a>
@@ -166,12 +187,15 @@
                     <div class="p-4">
                         {{-- Card Header --}}
                         <div class="flex items-start">
-                            {{-- For profile picture, update this later to allow user's own profile image if added --}}
-                                <a href="{{ route('profile.show', $project->user) }}">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $project->user->name }}'s avatar">
+                                <a href="{{ route('profile.show', $project->user) }}" @click.stop>
+                                    @if ($project->user->avatar_path)
+                                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($project->user->avatar_path) }}" alt="{{ $project->user->name }}'s avatar">
+                                    @else
+                                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($project->user->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ $project->user->name }}'s avatar">
+                                    @endif
                                 </a>
                             <div class="ml-3">
-                                <a href="{{ route('profile.show', $project->user) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $project->user->name }}</a>
+                                <a href="{{ route('profile.show', $project->user) }}" class="text-sm font-medium text-gray-900 hover:underline" @click.stop>{{ $project->user->name }}</a>
                                 
                                 {{-- Show the timestamp and status on the second line --}}
                                 <p class="text-xs text-gray-500">
@@ -185,6 +209,8 @@
                                             elseif ($project->status === 'Education') { $statusColor = 'text-blue-600'; }
                                             elseif ($project->status === 'Programming') { $statusColor = 'text-purple-600'; }
                                             elseif ($project->status === 'Community') { $statusColor = 'text-indigo-600'; }
+                                            elseif ($project->status === 'Health') { $statusColor = 'text-rose-600'; }
+                                            elseif ($project->status === 'Animals') { $statusColor = 'text-orange-600'; }
                                         @endphp
                                         <span class="font-medium {{ $statusColor }}"> · {{ $project->status }}</span>
                                     @endif
@@ -231,41 +257,41 @@
                     </div>
 
                     {{-- Card Footer --}}
-<div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t">
-    <div @click.stop class="flex space-x-4">
-        @php
-            $hasLiked = in_array($project->id, $likedProjectIds);
-        @endphp
-        {{-- Dynamic Like Button --}}
-        <button class="like-btn flex items-center transition {{ $hasLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500' }}" data-project-id="{{ $project->id }}">
-            <i class="{{ $hasLiked ? 'fas' : 'far' }} fa-heart mr-1"></i>
-            <span class="like-count">{{ $project->likers_count }}</span>
-        </button>
+                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t">
+                    <div @click.stop class="flex space-x-4">
+                        @php
+                            $hasLiked = in_array($project->id, $likedProjectIds);
+                        @endphp
+                        {{-- Dynamic Like Button --}}
+                        <button class="like-btn flex items-center transition {{ $hasLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500' }}" data-project-id="{{ $project->id }}">
+                            <i class="{{ $hasLiked ? 'fas' : 'far' }} fa-heart mr-1"></i>
+                            <span class="like-count">{{ $project->likers_count }}</span>
+                        </button>
 
-        {{-- Dynamic Comment Count (already correct) --}}
-        <a href="#" @click.prevent="openProjectModal({{ $project->id }})" class="flex items-center text-gray-500 hover:text-green-500">
-            <i class="far fa-comment mr-1"></i>
-            <span>{{ $project->comments_count }}</span>
-        </a>
-    </div>
+                        {{-- Dynamic Comment Count (already correct) --}}
+                        <a href="#" @click.prevent="openProjectModal({{ $project->id }})" class="flex items-center text-gray-500 hover:text-green-500">
+                            <i class="far fa-comment mr-1"></i>
+                            <span>{{ $project->comments_count }}</span>
+                        </a>
+                    </div>
 
-    @php
-        $hasApplied = $project->applications->contains('user_id', auth()->id());
-    @endphp
+                    @php
+                        $hasApplied = $project->applications->contains('user_id', auth()->id());
+                    @endphp
 
-    @if($hasApplied)
-        <button @click.stop class="px-4 py-1 bg-gray-400 text-white rounded-md text-sm font-medium cursor-not-allowed" disabled>
-            <i class="fas fa-check mr-1"></i> Applied
-        </button>
-    @else
-        <form @click.stop action="{{ route('projects.apply', $project) }}" method="POST">
-            @csrf
-            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
-                <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
-            </button>
-        </form>
-    @endif
-</div>
+                    @if($hasApplied)
+                        <button @click.stop class="px-4 py-1 bg-gray-400 text-white rounded-md text-sm font-medium cursor-not-allowed" disabled>
+                            <i class="fas fa-check mr-1"></i> Applied
+                        </button>
+                    @else
+                        <form @click.stop action="{{ route('projects.apply', $project) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition">
+                                <i class="fas fa-hand-holding-heart mr-1"></i> Volunteer
+                            </button>
+                        </form>
+                    @endif
+                </div>
                 </div>
 
                 @empty
@@ -291,7 +317,11 @@
                     @forelse ($recommendedUsers as $recommendedUser)
                         <div class="flex items-center">
                             <a href="{{ route('profile.show', $recommendedUser) }}">
-                                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($recommendedUser->name) }}" alt="{{ $recommendedUser->name }}'s avatar">
+                                @if ($recommendedUser->avatar_path)
+                                   <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($recommendedUser->avatar_path) }}" alt="{{ $recommendedUser->name }}'s avatar">
+                                @else
+                                      <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($recommendedUser->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="{{ $recommendedUser->name }}'s avatar">
+                                 @endif
                             </a>
                             <div class="ml-3">
                                 <a href="{{ route('profile.show', $recommendedUser) }}" class="text-sm font-medium text-gray-900 hover:underline">{{ $recommendedUser->name }}</a>
@@ -314,48 +344,48 @@
 
 
             {{-- "Incoming Applicants" Section --}}
-<div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-xl font-bold text-gray-800 mb-4">Incoming Applicants</h3>
-    <div class="space-y-6">
-        {{-- This outer loop for each project remains the same --}}
-        @forelse ($incomingApplicants as $projectTitle => $applications)
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 class="font-bold text-gray-900 mb-3">{{ $projectTitle }}</h4>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Incoming Applicants</h3>
+                <div class="space-y-6">
+                    {{-- This outer loop for each project remains the same --}}
+                    @forelse ($incomingApplicants as $projectTitle => $applications)
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-900 mb-3">{{ $projectTitle }}</h4>
 
-                <div class="space-y-4">
-                    {{-- Loop through the applicants for THIS project --}}
-                    @foreach ($applications as $application)
-                        <div class="py-3 border-b border-gray-200 last:border-b-0">
-                            {{-- Row 1: Name and Time --}}
-                            <div class="flex items-baseline justify-between">
-                                <a href="{{ route('profile.show', $application->user) }}" class="font-semibold text-blue-700 hover:underline">
-                                    {{ $application->user->name }}
-                                </a>
-                                <p class="text-xs text-gray-500">
-                                {{ $application->created_at->diffForHumans() }}
-                                </p>
-                            </div>
+                            <div class="space-y-4">
+                                {{-- Loop through the applicants for THIS project --}}
+                                @foreach ($applications as $application)
+                                    <div class="py-3 border-b border-gray-200 last:border-b-0">
+                                        {{-- Row 1: Name and Time --}}
+                                        <div class="flex items-baseline justify-between">
+                                            <a href="{{ route('profile.show', $application->user) }}" class="font-semibold text-blue-700 hover:underline">
+                                                {{ $application->user->name }}
+                                            </a>
+                                            <p class="text-xs text-gray-500">
+                                            {{ $application->created_at->diffForHumans() }}
+                                            </p>
+                                        </div>
 
 
-                            <div class="mt-2">
-                                <form action="{{ route('applications.update', $application->id) }}" method="POST" class="flex gap-2">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button name="status" value="accepted" class="font-semibold text-xs px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Accept</button>
-                                    <button name="status" value="declined" class="font-semibold text-xs px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">Decline</button>
-                                </form>
+                                        <div class="mt-2">
+                                            <form action="{{ route('applications.update', $application->id) }}" method="POST" class="flex gap-2">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button name="status" value="accepted" class="font-semibold text-xs px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Accept</button>
+                                                <button name="status" value="declined" class="font-semibold text-xs px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">Decline</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="text-center py-4">
+                            <p class="text-sm text-gray-500">When someone applies to your projects, you'll see them here.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
-        @empty
-            <div class="text-center py-4">
-                <p class="text-sm text-gray-500">When someone applies to your projects, you'll see them here.</p>
-            </div>
-        @endforelse
-    </div>
-</div>
 
 
             <div class="bg-white rounded-lg shadow p-4">
@@ -367,9 +397,9 @@
                                 <h4 class="font-bold text-green-800">{{ $project->title }}</h4>
                                 <p class="text-xs text-gray-600 mt-1">
                                     Posted by
-                                    {{-- This link will now point to the project creator's profile --}}
+                                    
                                     <a href="{{ route('profile.show', $project->user) }}" class="font-medium text-gray-900 hover:underline">
-                                        {{-- This displays the organization name, or falls back to the user's name if it doesn't exist --}}
+                                        
                                         {{ $project->organization_name ?? $project->user->name }}
                                     </a>
                                 </p>
@@ -429,7 +459,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', async function (event) {
-            // Check if user is authenticated
             if (!{{ auth()->check() ? 'true' : 'false' }}) {
                 window.location.href = '{{ route('login') }}';
                 return;
@@ -449,13 +478,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (data.success) {
-                // Update the count
                 countSpan.textContent = data.likes_count;
-                // Toggle the button's liked state
                 this.classList.toggle('text-red-500');
                 this.classList.toggle('text-gray-500');
-                icon.classList.toggle('fas'); // solid
-                icon.classList.toggle('far'); // regular
+                icon.classList.toggle('fas'); 
+                icon.classList.toggle('far'); 
             }
         });
     });

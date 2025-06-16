@@ -1,5 +1,7 @@
 @extends('layouts.messaging')
 
+
+
 {{-- Left Pane: The list of all conversations --}}
 @section('conversation-list')
     @include('messages._conversation-list', ['conversations' => $conversations])

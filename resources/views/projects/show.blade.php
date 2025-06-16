@@ -83,9 +83,13 @@
         <form action="{{ route('comments.store', $project) }}" method="POST" class="mb-6">
             @csrf
             <div class="flex items-start space-x-3">
-                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" alt="Your avatar">
+                @if (auth()->user()->avatar_path)
+                    <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url(auth()->user()->avatar_path) }}" alt="Your avatar">
+                @else
+                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="Your avatar">
+                @endif
                 <div class="flex-1">
-                    <textarea name="content" rows="2" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Add a public comment..."></textarea>
+                    <textarea name="content" rows="2" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="  Add a public comment..."></textarea>
                     <div class="text-right mt-2">
                         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Post Comment</button>
                     </div>
@@ -98,7 +102,11 @@
             @forelse ($project->comments as $comment)
                 <div class="flex items-start space-x-3">
                     <a href="{{ route('profile.show', $comment->user) }}">
-                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($comment->user->name) }}" alt="Commenter's avatar">
+                        @if ($comment->user->avatar_path)
+                            <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($comment->user->avatar_path) }}" alt="{{ $comment->user->name }}'s avatar">
+                        @else
+                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($comment->user->name) }}&size=256&background=EBF4FF&color=7F9CF5" alt="Commenter's avatar">
+                        @endif
                     </a>
                     <div class="flex-1 bg-gray-100 rounded-lg p-3">
                         <div class="flex items-center">

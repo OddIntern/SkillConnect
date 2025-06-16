@@ -24,6 +24,6 @@ class FollowController extends Controller
         $follower->following()->toggle($user->id);
 
         // Redirect the user back to the page they came from
-        return back();
+        return back()->with('success', 'Follow status updated!');
     }
 }

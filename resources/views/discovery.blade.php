@@ -1,4 +1,8 @@
 <x-app-layout>
+    <x-slot name="title">
+        {{ __('SkillConnect - Discover') }}
+    </x-slot>
+    
     <x-slot name="styles">
         <link rel="stylesheet" href="{{ asset('css/discovery_styles.css') }}">
     </x-slot>
