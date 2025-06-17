@@ -90,7 +90,7 @@ Follow these steps carefully to get your development environment up and running.
 - Click on the **Databases** tab at the top.
 - Under the "Create database" section, enter `skillconnect` in the text field and click `Create`.
 
-  **c. Configure the .env File**
+**c. Configure the .env File**
 
 - Open the `.env` file in your code editor.
 - Update the database credentials to match your XAMPP setup. The default username is `root` with no password.
