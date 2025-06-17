@@ -89,6 +89,11 @@ Follow these steps carefully to get your development environment up and running.
 - In the XAMPP Control Panel, click the `Admin` button for the **MySQL** module. This will open phpMyAdmin in your browser.
 - Click on the **Databases** tab at the top.
 - Under the "Create database" section, enter `skillconnect` in the text field and click `Create`.
+
+  **c. Configure the .env File**
+
+- Open the `.env` file in your code editor.
+- Update the database credentials to match your XAMPP setup. The default username is `root` with no password.
   
    Open the `.env` file in your code editor and update the database credentials (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) to match your local setup.
    ```env
