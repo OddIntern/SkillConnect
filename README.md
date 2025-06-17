@@ -78,6 +78,18 @@ Follow these steps carefully to get your development environment up and running.
    ```
 
 **6. Configure Your Database**
+
+**a. Start XAMPP Services**
+
+- Open the XAMPP Control Panel.
+- Click the `Start` button next to both the **Apache** and **MySQL** modules. They should both turn green.
+
+**b. Create the Database**
+
+- In the XAMPP Control Panel, click the `Admin` button for the **MySQL** module. This will open phpMyAdmin in your browser.
+- Click on the **Databases** tab at the top.
+- Under the "Create database" section, enter `skillconnect` in the text field and click `Create`.
+  
    Open the `.env` file in your code editor and update the database credentials (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) to match your local setup.
    ```env
    DB_CONNECTION=mysql
