@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Skill;
-use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -68,17 +68,14 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        // 1. Authorization
-        if (auth()->user()->isNot($user)) {
-            abort(403); 
-        }
+        $user = $request->user();
 
-        // 2. Validation: Define the rules for the incoming data
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'email' => ['sometimes', 'required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'pronouns' => 'nullable|string|max:50',
             'headline' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
@@ -89,59 +86,48 @@ class ProfileController extends Controller
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
         ]);
 
-                // 3. Handle Avatar Upload
         if ($request->hasFile('avatar')) {
-            // Delete old avatar if it exists
             if ($user->avatar_path) {
                 Storage::disk('public')->delete($user->avatar_path);
             }
-            // Store new avatar and get the path
             $validatedData['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
         }
 
 
-        // 4. Handle Banner Upload
         if ($request->hasFile('banner')) {
-            // Delete old banner if it exists
             if ($user->banner_path) {
                 Storage::disk('public')->delete($user->banner_path);
             }
-            // Store new banner and get the path
             $validatedData['banner_path'] = $request->file('banner')->store('banners', 'public');
         }
 
-        // 5. Update User's Main Fields
-        $user->update(\Illuminate\Support\Arr::except($validatedData, ['skills', 'avatar', 'banner']));
+        $emailChanged = array_key_exists('email', $validatedData) && $validatedData['email'] !== $user->email;
+
+        $user->fill(\Illuminate\Support\Arr::except($validatedData, ['skills', 'avatar', 'banner']));
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
         $user->name = $validatedData['first_name'] . ' ' . $validatedData['last_name'];
         $user->save();
 
-        // 6. Process and Sync Skills (This is the critical part)
         $skillIds = [];
-        // Check if the 'skills' input was provided and is not empty
         if ($request->filled('skills')) {
-            // Split the comma-separated string into an array
             $skillNames = explode(',', $request->input('skills'));
 
             foreach ($skillNames as $skillName) {
-                // Clean up each skill name
                 $trimmedName = trim($skillName);
-                if ($trimmedName) { // Ensure it's not an empty string after trimming
-                    // Find the skill by its name or create it if it doesn't exist
+                if ($trimmedName) {
                     $skill = Skill::firstOrCreate(
                         ['slug' => Str::slug($trimmedName)],
                         ['name' => $trimmedName]
                     );
-                    // Collect the ID of the skill
                     $skillIds[] = $skill->id;
                 }
             }
         }
 
-        // 7. Sync the collected IDs with the user's skills relationship
-        // This command adds, removes, and updates the connections in the skill_user pivot table.
         $user->skills()->sync($skillIds);
 
-        // 6. Redirect Back
         return redirect()->route('profile.show', $user)->with('success', 'Profile updated successfully!');
     }
 

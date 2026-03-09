@@ -310,7 +310,7 @@
                     <button @click="openModal = null" class="text-gray-400 hover:text-gray-600">&times;</button>
                 </div>
                 {{-- Main Edit Form --}}
-                <form action="{{ route('public-profile.update', $user) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
                     <div class="space-y-4">

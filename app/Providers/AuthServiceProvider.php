@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
+use App\Models\Conversation;
 use App\Models\Experience; // Import your Experience model
+use App\Policies\ConversationPolicy;
 use App\Policies\ExperiencePolicy; // Import your Experience policy
 
 class AuthServiceProvider extends ServiceProvider
